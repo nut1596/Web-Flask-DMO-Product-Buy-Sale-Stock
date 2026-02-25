@@ -22,6 +22,7 @@ class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Float, nullable=False)
+    image = db.Column(db.String(200), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
 
 
@@ -60,29 +61,33 @@ if __name__ == "__main__":
             ht_category = Category.query.filter_by(name="HT").first()
 
             at_products = [
-                ("จูเรย์มอน", 5),
-                ("ทาเนมอน", 10),
-                ("กิลมอน", 30),
-                ("จินลอนมอน", 40),
-                ("อัลฟอร์ซ วีดรามอน X", 500),
+                ("จูเรย์มอน", 5, "default.png"),
+                ("ทาเนมอน", 10, "default.png"),
+                ("กิลมอน", 30, "default.png"),
+                ("จินลอนมอน", 40, "default.png"),
+                ("อัลฟอร์ซ วีดรามอน X", 500, "default.png"),
             ]
 
             ht_products = [
-                ("โดริโมเกมอน", 4),
-                ("ฟานบีมอน", 7),
-                ("ไนท์มอน", 30),
-                ("แกมมามอน", 60),
-                ("พาราไซมอน", 140),
+                ("โดริโมเกมอน", 4, "default.png"),
+                ("ฟานบีมอน", 7, "default.png"),
+                ("ไนท์มอน", 30, "default.png"),
+                ("แกมมามอน", 60, "default.png"),
+                ("พาราไซมอน", 140, "default.png"),
             ]
 
-            for name, price in at_products:
+            for name, price, image in at_products:
                 db.session.add(
-                    Product(name=name, price=price, category_id=at_category.id)
+                    Product(
+                        name=name, price=price, image=image, category_id=at_category.id
+                    )
                 )
 
-            for name, price in ht_products:
+            for name, price, image in ht_products:
                 db.session.add(
-                    Product(name=name, price=price, category_id=ht_category.id)
+                    Product(
+                        name=name, price=price, image=image, category_id=ht_category.id
+                    )
                 )
 
             db.session.commit()
