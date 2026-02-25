@@ -12,14 +12,26 @@
         </tr>
     </thead>
     <tbody>
-        {% for item in cart_items %}
+        {% for index, item in cart_items %}
         <tr>
             <td>{{ item.name }}</td>
             <td>{{ item.price }} บาท</td>
+            <td>
+                <a href="{{ url_for('remove_from_cart', index=index) }}"
+                class="btn btn-danger btn-sm">
+                ลบ
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
+
+<div class="text-end mb-3">
+    <a href="{{ url_for('clear_cart') }}" class="btn btn-secondary">
+        ล้างตะกร้า
+    </a>
+</div>
 
 <h4 class="text-end">รวมทั้งหมด: {{ total }} บาท</h4>
 

@@ -60,13 +60,28 @@ def cart():
     total = 0
 
     if "cart" in session:
-        for product_id in session["cart"]:
+        for index, product_id in enumerate(session["cart"]):
             product = Product.query.get(product_id)
             if product:
-                cart_items.append(product)
+                cart_items.append((index, product))
                 total += product.price
 
     return render_template("cart.html", cart_items=cart_items, total=total)
+
+
+@app.route("/remove_from_cart/<int:index>")
+def remove_from_cart(index):
+    if "cart" in session:
+        if 0 <= index < len(session["cart"]):
+            session["cart"].pop(index)
+            session.modified = True
+    return redirect(url_for("cart"))
+
+
+@app.route("/clear_cart")
+def clear_cart():
+    session.pop("cart", None)
+    return redirect(url_for("cart"))
 
 
 # ------------------

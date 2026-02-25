@@ -13,7 +13,7 @@
     <div class="container">
         <a class="navbar-brand" href="/">DMO Stock</a>
         <a class="btn btn-warning" href="{{ url_for('cart') }}">
-            Cart
+            Cart ({{ session.get('cart', [])|length }})
         </a>
     </div>
 </nav>
