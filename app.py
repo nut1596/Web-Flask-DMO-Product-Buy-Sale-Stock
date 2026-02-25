@@ -47,10 +47,44 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
 
+        # Seed Category
         if Category.query.count() == 0:
             default_categories = ["AT", "HT", "CT", "HP", "DS", "DE", "EV", "BL"]
             for name in default_categories:
                 db.session.add(Category(name=name))
+            db.session.commit()
+
+        # Seed Product (เฉพาะ AT และ HT ก่อน)
+        if Product.query.count() == 0:
+            at_category = Category.query.filter_by(name="AT").first()
+            ht_category = Category.query.filter_by(name="HT").first()
+
+            at_products = [
+                ("จูเรย์มอน", 5),
+                ("ทาเนมอน", 10),
+                ("กิลมอน", 30),
+                ("จินลอนมอน", 40),
+                ("อัลฟอร์ซ วีดรามอน X", 500),
+            ]
+
+            ht_products = [
+                ("โดริโมเกมอน", 4),
+                ("ฟานบีมอน", 7),
+                ("ไนท์มอน", 30),
+                ("แกมมามอน", 60),
+                ("พาราไซมอน", 140),
+            ]
+
+            for name, price in at_products:
+                db.session.add(
+                    Product(name=name, price=price, category_id=at_category.id)
+                )
+
+            for name, price in ht_products:
+                db.session.add(
+                    Product(name=name, price=price, category_id=ht_category.id)
+                )
+
             db.session.commit()
 
     app.run(debug=True)
