@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4 text-center">ตะกร้าสินค้า</h2>
+
+{% if cart_items %}
+<table class="table table-bordered text-center">
+    <thead class="table-dark">
+        <tr>
+            <th>สินค้า</th>
+            <th>ราคา</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in cart_items %}
+        <tr>
+            <td>{{ item.name }}</td>
+            <td>{{ item.price }} บาท</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h4 class="text-end">รวมทั้งหมด: {{ total }} บาท</h4>
+
+{% else %}
+<p class="text-center text-muted">ยังไม่มีสินค้าในตะกร้า</p>
+{% endif %}
+
+{% endblock %}

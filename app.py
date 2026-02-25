@@ -1,7 +1,9 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+
+app.config["SECRET_KEY"] = "supersecretkey"
 
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -39,6 +41,32 @@ def home():
 def category_detail(id):
     category = Category.query.get_or_404(id)
     return render_template("category.html", category=category)
+
+
+@app.route("/add_to_cart/<int:product_id>")
+def add_to_cart(product_id):
+    if "cart" not in session:
+        session["cart"] = []
+
+    session["cart"].append(product_id)
+    session.modified = True
+
+    return redirect(url_for("cart"))
+
+
+@app.route("/cart")
+def cart():
+    cart_items = []
+    total = 0
+
+    if "cart" in session:
+        for product_id in session["cart"]:
+            product = Product.query.get(product_id)
+            if product:
+                cart_items.append(product)
+                total += product.price
+
+    return render_template("cart.html", cart_items=cart_items, total=total)
 
 
 # ------------------
