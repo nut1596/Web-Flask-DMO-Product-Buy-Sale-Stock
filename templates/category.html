@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4 text-center">สาย {{ category.name }}</h2>
+
+{% if category.products %}
+<div class="row">
+    {% for product in category.products %}
+    <div class="col-md-3 mb-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                <h6>{{ product.name }}</h6>
+                <p>{{ product.price }} บาท</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-center text-muted">ยังไม่มีสินค้าในหมวดนี้</p>
+{% endif %}
+
+{% endblock %}
