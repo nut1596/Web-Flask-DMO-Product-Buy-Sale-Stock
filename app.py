@@ -25,6 +25,7 @@ class Product(db.Model):
     name = db.Column(db.String(200), nullable=False)
     price = db.Column(db.Float, nullable=False)
     image = db.Column(db.String(200), nullable=False)
+    stock = db.Column(db.Integer, nullable=False, default=0)  # 👈 เพิ่มตรงนี้
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
 
 
@@ -51,11 +52,20 @@ def category_detail(id):
 
 @app.route("/add_to_cart/<int:product_id>")
 def add_to_cart(product_id):
+    product = Product.query.get_or_404(product_id)
+
+    if product.stock <= 0:
+        return redirect(url_for("category_detail", id=product.category_id))
+
     if "cart" not in session:
         session["cart"] = []
 
-    session["cart"].append(product_id)
-    session.modified = True
+    # นับจำนวนที่อยู่ใน cart แล้ว
+    current_count = session["cart"].count(product_id)
+
+    if current_count < product.stock:
+        session["cart"].append(product_id)
+        session.modified = True
 
     return redirect(url_for("cart"))
 
@@ -127,32 +137,40 @@ if __name__ == "__main__":
             ht_category = Category.query.filter_by(name="HT").first()
 
             at_products = [
-                ("จูเรย์มอน", 5, "default.png"),
-                ("ทาเนมอน", 10, "default.png"),
-                ("กิลมอน", 30, "default.png"),
-                ("จินลอนมอน", 40, "default.png"),
-                ("อัลฟอร์ซ วีดรามอน X", 500, "default.png"),
+                ("จูเรย์มอน", 5, "default.png", 10),
+                ("ทาเนมอน", 10, "default.png", 8),
+                ("กิลมอน", 30, "default.png", 5),
+                ("จินลอนมอน", 40, "default.png", 3),
+                ("อัลฟอร์ซ วีดรามอน X", 500, "default.png", 1),
             ]
 
             ht_products = [
-                ("โดริโมเกมอน", 4, "default.png"),
-                ("ฟานบีมอน", 7, "default.png"),
-                ("ไนท์มอน", 30, "default.png"),
-                ("แกมมามอน", 60, "default.png"),
-                ("พาราไซมอน", 140, "default.png"),
+                ("โดริโมเกมอน", 4, "default.png", 10),
+                ("ฟานบีมอน", 7, "default.png", 7),
+                ("ไนท์มอน", 30, "default.png", 5),
+                ("แกมมามอน", 60, "default.png", 4),
+                ("พาราไซมอน", 140, "default.png", 2),
             ]
 
-            for name, price, image in at_products:
+            for name, price, image, stock in at_products:
                 db.session.add(
                     Product(
-                        name=name, price=price, image=image, category_id=at_category.id
+                        name=name,
+                        price=price,
+                        image=image,
+                        stock=stock,
+                        category_id=at_category.id,
                     )
                 )
 
-            for name, price, image in ht_products:
+            for name, price, image, stock in ht_products:
                 db.session.add(
                     Product(
-                        name=name, price=price, image=image, category_id=ht_category.id
+                        name=name,
+                        price=price,
+                        image=image,
+                        stock=stock,
+                        category_id=ht_category.id,
                     )
                 )
         # Seed Discount

@@ -13,10 +13,17 @@
             <div class="card-body">
                 <h6>{{ product.name }}</h6>
                 <p>{{ product.price }} บาท</p>
+                <p>คงเหลือ: {{ product.stock }} ชิ้น</p>
+                {% if product.stock > 0 %}
                 <a href="{{ url_for('add_to_cart', product_id=product.id) }}" 
                     class="btn btn-success btn-sm">
                     เพิ่มลงตะกร้า
                 </a>
+                {% else %}
+                <button class="btn btn-danger btn-sm" disabled>
+                    สินค้าหมด
+                </button>
+                {% endif %}
             </div>
         </div>
     </div>
