@@ -35,6 +35,28 @@
 
 <h4 class="text-end">รวมทั้งหมด: {{ total }} บาท</h4>
 
+<form method="POST" class="mt-3">
+    <div class="row justify-content-end">
+        <div class="col-md-4">
+            <input type="text" name="discount_code"
+                   class="form-control"
+                   placeholder="ใส่โค้ดส่วนลด">
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-success w-100">
+                ใช้โค้ด
+            </button>
+        </div>
+    </div>
+</form>
+
+{% if discount_amount > 0 %}
+<div class="text-end mt-3">
+    <p>ส่วนลด: -{{ discount_amount }} บาท</p>
+    <h4>ยอดสุทธิ: {{ final_total }} บาท</h4>
+</div>
+{% endif %}
+
 {% else %}
 <p class="text-center text-muted">ยังไม่มีสินค้าในตะกร้า</p>
 {% endif %}

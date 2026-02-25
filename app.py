@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, redirect, url_for
+from flask import Flask, render_template, session, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -28,6 +28,12 @@ class Product(db.Model):
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
 
 
+class Discount(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(50), unique=True, nullable=False)
+    percent = db.Column(db.Float, nullable=False)
+
+
 # ------------------
 # Routes
 # ------------------
@@ -54,10 +60,12 @@ def add_to_cart(product_id):
     return redirect(url_for("cart"))
 
 
-@app.route("/cart")
+@app.route("/cart", methods=["GET", "POST"])
 def cart():
     cart_items = []
     total = 0
+    discount_amount = 0
+    final_total = 0
 
     if "cart" in session:
         for index, product_id in enumerate(session["cart"]):
@@ -66,7 +74,22 @@ def cart():
                 cart_items.append((index, product))
                 total += product.price
 
-    return render_template("cart.html", cart_items=cart_items, total=total)
+    if request.method == "POST":
+        code = request.form.get("discount_code")
+        discount = Discount.query.filter_by(code=code).first()
+
+        if discount:
+            discount_amount = total * (discount.percent / 100)
+
+    final_total = total - discount_amount
+
+    return render_template(
+        "cart.html",
+        cart_items=cart_items,
+        total=total,
+        discount_amount=discount_amount,
+        final_total=final_total,
+    )
 
 
 @app.route("/remove_from_cart/<int:index>")
@@ -132,6 +155,16 @@ if __name__ == "__main__":
                         name=name, price=price, image=image, category_id=ht_category.id
                     )
                 )
+        # Seed Discount
+        if Discount.query.count() == 0:
+            discounts = [
+                ("NEWYEAR10", 10),
+                ("VIP20", 20),
+                ("EV15", 15),
+            ]
+
+            for code, percent in discounts:
+                db.session.add(Discount(code=code, percent=percent))
 
             db.session.commit()
 
