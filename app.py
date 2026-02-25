@@ -5,7 +5,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return "DMO Product Stock Website is Running!"
+    return "DMO Product Buy-Sale-Stock System is Running!"
 
 
 if __name__ == "__main__":
