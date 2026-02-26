@@ -8,16 +8,19 @@
     <thead class="table-dark">
         <tr>
             <th>สินค้า</th>
-            <th>ราคา</th>
+            <th>จำนวน</th>
+            <th>ราคารวม</th>
+            <th>จัดการ</th>
         </tr>
     </thead>
     <tbody>
-        {% for index, item in cart_items %}
+        {% for product, quantity, subtotal in cart_items %}
         <tr>
-            <td>{{ item.name }}</td>
-            <td>{{ item.price }} บาท</td>
+            <td>{{ product.name }}</td>
+            <td>{{ quantity }}</td>
+            <td>{{ subtotal }} บาท</td>
             <td>
-                <a href="{{ url_for('main.remove_from_cart', index=index) }}"
+                <a href="{{ url_for('main.remove_from_cart', product_id=product.id) }}"
                 class="btn btn-danger btn-sm">
                 ลบ
                 </a>

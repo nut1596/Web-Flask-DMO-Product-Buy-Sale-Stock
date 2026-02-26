@@ -20,6 +20,8 @@ def category_detail(id):
 
 
 # ---------------- CART ----------------
+
+
 @main.route("/add_to_cart/<int:product_id>")
 def add_to_cart(product_id):
     product = Product.query.get_or_404(product_id)
@@ -28,13 +30,18 @@ def add_to_cart(product_id):
         return redirect(url_for("main.category_detail", id=product.category_id))
 
     if "cart" not in session:
-        session["cart"] = []
+        session["cart"] = {}
 
-    current_count = session["cart"].count(product_id)
+    cart = session["cart"]
+    product_id_str = str(product_id)
 
-    if current_count < product.stock:
-        session["cart"].append(product_id)
-        session.modified = True
+    current_quantity = cart.get(product_id_str, 0)
+
+    if current_quantity < product.stock:
+        cart[product_id_str] = current_quantity + 1
+
+    session["cart"] = cart
+    session.modified = True
 
     return redirect(url_for("main.cart"))
 
@@ -46,12 +53,17 @@ def cart():
     discount_amount = 0
     final_total = 0
 
+    # 🔥 กันกรณี session เก่าเป็น list
+    if "cart" in session and isinstance(session["cart"], list):
+        session["cart"] = {}
+
     if "cart" in session:
-        for index, product_id in enumerate(session["cart"]):
-            product = Product.query.get(product_id)
+        for product_id_str, quantity in session["cart"].items():
+            product = Product.query.get(int(product_id_str))
             if product:
-                cart_items.append((index, product))
-                total += product.price
+                subtotal = product.price * quantity
+                cart_items.append((product, quantity, subtotal))
+                total += subtotal
 
     if request.method == "POST":
         code = request.form.get("discount_code")
@@ -71,12 +83,18 @@ def cart():
     )
 
 
-@main.route("/remove_from_cart/<int:index>")
-def remove_from_cart(index):
+@main.route("/remove_from_cart/<int:product_id>")
+def remove_from_cart(product_id):
     if "cart" in session:
-        if 0 <= index < len(session["cart"]):
-            session["cart"].pop(index)
-            session.modified = True
+        cart = session["cart"]
+        product_id_str = str(product_id)
+
+        if product_id_str in cart:
+            del cart[product_id_str]
+
+        session["cart"] = cart
+        session.modified = True
+
     return redirect(url_for("main.cart"))
 
 
@@ -94,11 +112,11 @@ def checkout():
 
     total = 0
 
-    for product_id in session["cart"]:
-        product = Product.query.get(product_id)
-        if product and product.stock > 0:
-            product.stock -= 1
-            total += product.price
+    for product_id_str, quantity in session["cart"].items():
+        product = Product.query.get(int(product_id_str))
+        if product and product.stock >= quantity:
+            product.stock -= quantity
+            total += product.price * quantity
 
     new_order = Order(total_amount=total)
     db.session.add(new_order)
