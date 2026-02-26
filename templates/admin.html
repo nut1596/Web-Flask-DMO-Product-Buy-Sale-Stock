@@ -95,13 +95,15 @@ document.addEventListener("DOMContentLoaded", function() {
 
     if (ctx && {{ labels|length }} > 0) {
         new Chart(ctx, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: {{ labels|tojson }},
                 datasets: [{
-                    label: 'ยอดขาย (บาท)',
+                    label: 'ยอดขายรายวัน (บาท)',
                     data: {{ data|tojson }},
-                    borderWidth: 1
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: false
                 }]
             },
             options: {

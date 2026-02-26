@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from flask import Blueprint, render_template, session, redirect, url_for, request
 from models import Product, Order, Category
 from models import db
@@ -13,14 +14,21 @@ def admin_dashboard():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.login"))
 
-    orders = Order.query.order_by(Order.created_at.asc()).all()
+    orders = Order.query.order_by(Order.created_at.desc()).all()
 
     total_sales = sum(order.total_amount for order in orders)
     total_orders = len(orders)
 
-    # เตรียมข้อมูลกราฟ
-    labels = [f"Order {order.id}" for order in orders]
-    data = [order.total_amount for order in orders]
+    # 🔥 Group by Date (รายวัน)
+    daily_sales = (
+        db.session.query(func.date(Order.created_at), func.sum(Order.total_amount))
+        .group_by(func.date(Order.created_at))
+        .order_by(func.date(Order.created_at))
+        .all()
+    )
+
+    labels = [str(row[0]) for row in daily_sales]
+    data = [float(row[1]) for row in daily_sales]
 
     return render_template(
         "admin.html",
