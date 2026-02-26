@@ -94,3 +94,14 @@ def edit_product(id):
 
     categories = Category.query.all()
     return render_template("edit_product.html", product=product, categories=categories)
+
+
+@admin.route("/admin/orders/<int:id>")
+def order_detail(id):
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.login"))
+
+    order = Order.query.get_or_404(id)
+
+    return render_template("order_detail.html", order=order)

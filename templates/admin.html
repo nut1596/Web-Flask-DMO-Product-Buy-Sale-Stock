@@ -33,6 +33,7 @@
             <th>Order ID</th>
             <th>ยอดรวม</th>
             <th>วันที่</th>
+            <th>รายละเอียด</th>
         </tr>
     </thead>
     <tbody>
@@ -45,6 +46,12 @@
             </td>
             <td>{{ order.total_amount }} บาท</td>
             <td>{{ order.created_at.strftime("%d/%m/%Y %H:%M") }}</td>
+            <td>
+                <a href="{{ url_for('admin.order_detail', id=order.id) }}"
+                class="btn btn-info btn-sm">
+                ดู
+                </a>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
