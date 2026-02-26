@@ -14,6 +14,7 @@ from models import db
 from werkzeug.utils import secure_filename
 from flask import current_app
 import os
+from models import ActivityLog
 
 admin = Blueprint("admin", __name__)
 
@@ -160,6 +161,10 @@ def delete_product(id):
     db.session.delete(product)
     db.session.commit()
 
+    log = ActivityLog(username=session.get("role"), action=f"Deleted product ID: {id}")
+    db.session.add(log)
+    db.session.commit()
+
     return redirect(url_for("admin.admin_products"))
 
 
@@ -193,6 +198,10 @@ def add_product():
         )
 
         db.session.add(new_product)
+        db.session.commit()
+
+        log = ActivityLog(username=session.get("role"), action=f"Added product: {name}")
+        db.session.add(log)
         db.session.commit()
 
         return redirect(url_for("admin.admin_products"))
@@ -254,4 +263,21 @@ def update_status(id, status):
         order.status = status
         db.session.commit()
 
+        log = ActivityLog(
+            username=session.get("role"), action=f"Changed order #{id} to {status}"
+        )
+        db.session.add(log)
+        db.session.commit()
+
     return redirect(url_for("admin.admin_dashboard"))
+
+
+@admin.route("/admin/logs")
+def view_logs():
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.login"))
+
+    logs = ActivityLog.query.order_by(ActivityLog.timestamp.desc()).all()
+
+    return render_template("activity_logs.html", logs=logs)

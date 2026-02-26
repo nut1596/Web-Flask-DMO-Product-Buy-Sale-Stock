@@ -60,3 +60,10 @@ class AdminUser(db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+
+class ActivityLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100))
+    action = db.Column(db.String(200))
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
