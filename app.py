@@ -151,8 +151,10 @@ def checkout():
 
 @app.route("/admin")
 def admin_dashboard():
-    orders = Order.query.order_by(Order.created_at.desc()).all()
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("login"))
 
+    orders = Order.query.order_by(Order.created_at.desc()).all()
     total_sales = sum(order.total_amount for order in orders)
     total_orders = len(orders)
 
@@ -166,6 +168,8 @@ def admin_dashboard():
 
 @app.route("/admin/products")
 def admin_products():
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("login"))
     products = Product.query.all()
     return render_template("admin_products.html", products=products)
 
@@ -176,6 +180,28 @@ def delete_product(id):
     db.session.delete(product)
     db.session.commit()
     return redirect(url_for("admin_products"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        # กำหนด user แบบง่ายก่อน (hardcoded)
+        if username == "admin" and password == "1234":
+            session["admin_logged_in"] = True
+            return redirect(url_for("admin_dashboard"))
+
+        return render_template("login.html", error="Username หรือ Password ไม่ถูกต้อง")
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.pop("admin_logged_in", None)
+    return redirect(url_for("home"))
 
 
 # ------------------

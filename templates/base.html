@@ -10,21 +10,32 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
         <a class="navbar-brand" href="/">DMO Stock</a>
 
-        <!-- ปุ่มอยู่ด้านขวา -->
         <div class="ms-auto">
+            {% if session.get("admin_logged_in") %}
             <a class="btn btn-outline-light me-2"
-            href="{{ url_for('admin_dashboard') }}">
-            <i class="bi bi-speedometer2"></i> Admin
+               href="{{ url_for('admin_dashboard') }}">
+               <i class="bi bi-speedometer2"></i> Admin
             </a>
 
+            <a class="btn btn-danger me-2"
+               href="{{ url_for('logout') }}">
+               <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+            {% else %}
+            <a class="btn btn-outline-light me-2"
+               href="{{ url_for('login') }}">
+               <i class="bi bi-person"></i>  Admin Login
+            </a>
+            {% endif %}
+
             <a class="btn btn-warning"
-            href="{{ url_for('cart') }}">
-            <i class="bi bi-cart-fill"></i>
-            Cart ({{ session.get('cart', [])|length }})
+               href="{{ url_for('cart') }}">
+               <i class="bi bi-cart-fill"></i>
+               Cart ({{ session.get('cart', [])|length }})
             </a>
         </div>
     </div>
