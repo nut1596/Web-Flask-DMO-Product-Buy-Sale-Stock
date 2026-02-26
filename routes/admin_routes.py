@@ -71,3 +71,26 @@ def add_product():
 
     categories = Category.query.all()
     return render_template("add_product.html", categories=categories)
+
+
+@admin.route("/admin/products/edit/<int:id>", methods=["GET", "POST"])
+def edit_product(id):
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.login"))
+
+    product = Product.query.get_or_404(id)
+
+    if request.method == "POST":
+        product.name = request.form["name"]
+        product.price = float(request.form["price"])
+        product.stock = int(request.form["stock"])
+        product.image = request.form["image"]
+        product.category_id = int(request.form["category_id"])
+
+        db.session.commit()
+
+        return redirect(url_for("admin.admin_products"))
+
+    categories = Category.query.all()
+    return render_template("edit_product.html", product=product, categories=categories)
