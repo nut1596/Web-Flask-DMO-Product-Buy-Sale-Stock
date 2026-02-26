@@ -13,15 +13,22 @@ def admin_dashboard():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.login"))
 
-    orders = Order.query.order_by(Order.created_at.desc()).all()
+    orders = Order.query.order_by(Order.created_at.asc()).all()
+
     total_sales = sum(order.total_amount for order in orders)
     total_orders = len(orders)
+
+    # เตรียมข้อมูลกราฟ
+    labels = [f"Order {order.id}" for order in orders]
+    data = [order.total_amount for order in orders]
 
     return render_template(
         "admin.html",
         orders=orders,
         total_sales=total_sales,
         total_orders=total_orders,
+        labels=labels,
+        data=data,
     )
 
 

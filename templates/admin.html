@@ -24,6 +24,11 @@
     </div>
 </div>
 
+<hr>
+
+<h4 class="mt-4">กราฟยอดขาย</h4>
+<canvas id="salesChart" height="100"></canvas>
+
 <h4>รายการคำสั่งซื้อ</h4>
 
 {% if orders %}
@@ -73,10 +78,44 @@
             </td>
         </tr>
         {% endfor %}
+
     </tbody>
 </table>
 {% else %}
 <p class="text-muted text-center">ยังไม่มีคำสั่งซื้อ</p>
+
 {% endif %}
+
+
+<!-- eslint-disable -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const ctx = document.getElementById('salesChart');
+
+    if (ctx && {{ labels|length }} > 0) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ labels|tojson }},
+                datasets: [{
+                    label: 'ยอดขาย (บาท)',
+                    data: {{ data|tojson }},
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+});
+</script>
 
 {% endblock %}
