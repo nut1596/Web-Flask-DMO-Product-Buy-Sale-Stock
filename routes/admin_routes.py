@@ -140,8 +140,12 @@ def export_excel():
 
 @admin.route("/admin/products")
 def admin_products():
+
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.login"))
+
+    if session.get("role") != "admin":
+        return redirect(url_for("admin.admin_dashboard"))
 
     products = Product.query.all()
     return render_template("admin_products.html", products=products)

@@ -15,6 +15,7 @@ def login():
 
         if user and user.check_password(password):
             session["admin_logged_in"] = True
+            session["role"] = user.role
             return redirect(url_for("admin.admin_dashboard"))
 
         return render_template("login.html", error="Username หรือ Password ไม่ถูกต้อง")
