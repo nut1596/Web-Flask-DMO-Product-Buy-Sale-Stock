@@ -17,7 +17,7 @@
             <td>{{ item.name }}</td>
             <td>{{ item.price }} บาท</td>
             <td>
-                <a href="{{ url_for('remove_from_cart', index=index) }}"
+                <a href="{{ url_for('main.remove_from_cart', index=index) }}"
                 class="btn btn-danger btn-sm">
                 ลบ
                 </a>
@@ -28,7 +28,7 @@
 </table>
 
 <div class="text-end mb-3">
-    <a href="{{ url_for('clear_cart') }}" class="btn btn-secondary">
+    <a href="{{ url_for('main.clear_cart') }}" class="btn btn-secondary">
         ล้างตะกร้า
     </a>
 </div>
@@ -36,7 +36,7 @@
 <h4 class="text-end">รวมทั้งหมด: {{ total }} บาท</h4>
 
 <div class="text-end mt-3">
-    <a href="{{ url_for('checkout') }}" class="btn btn-primary">
+    <a href="{{ url_for('main.checkout') }}" class="btn btn-primary">
         ชำระเงิน
     </a>
 </div>

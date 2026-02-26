@@ -17,23 +17,23 @@
         <div class="ms-auto">
             {% if session.get("admin_logged_in") %}
             <a class="btn btn-outline-light me-2"
-               href="{{ url_for('admin_dashboard') }}">
+               href="{{ url_for('admin.admin_dashboard') }}">
                <i class="bi bi-speedometer2"></i> Admin
             </a>
 
             <a class="btn btn-danger me-2"
-               href="{{ url_for('logout') }}">
+               href="{{ url_for('auth.logout') }}">
                <i class="bi bi-box-arrow-right"></i> Logout
             </a>
             {% else %}
             <a class="btn btn-outline-light me-2"
-               href="{{ url_for('login') }}">
+               href="{{ url_for('auth.login') }}">
                <i class="bi bi-person"></i>  Admin Login
             </a>
             {% endif %}
 
             <a class="btn btn-warning"
-               href="{{ url_for('cart') }}">
+               href="{{ url_for('main.cart') }}">
                <i class="bi bi-cart-fill"></i>
                Cart ({{ session.get('cart', [])|length }})
             </a>
