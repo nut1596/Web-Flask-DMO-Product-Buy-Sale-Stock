@@ -2,6 +2,7 @@ import os
 from werkzeug.utils import secure_filename
 from flask import Flask
 from models import db, Category, Product, Discount
+from models import AdminUser
 from routes.main_routes import main
 from routes.admin_routes import admin
 from routes.auth_routes import auth
@@ -83,6 +84,14 @@ if __name__ == "__main__":
             ]
             for code, percent in discounts:
                 db.session.add(Discount(code=code, percent=percent))
+            db.session.commit()
+
+        # 4️⃣ Seed Admin User
+        # ตรวจสอบว่ามีผู้ใช้ admin อยู่แล้วหรือไม่
+        if AdminUser.query.count() == 0:
+            admin = AdminUser(username="admin")
+            admin.set_password("1234")
+            db.session.add(admin)
             db.session.commit()
 
     app.run(debug=True)
