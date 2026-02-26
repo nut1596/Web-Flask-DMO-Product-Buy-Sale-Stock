@@ -3,14 +3,55 @@
 {% block content %}
 <h2 class="mb-4 text-center">เลือกสายการ์ด</h2>
 
+
+<form method="GET" class="row mb-4">
+
+    <div class="col-md-4">
+        <input type="text"
+               name="search"
+               value="{{ search or '' }}"
+               class="form-control"
+               placeholder="ค้นหาสินค้า...">
+    </div>
+
+    <div class="col-md-4">
+        <select name="category" class="form-control">
+            <option value="">ทุกหมวดหมู่</option>
+            {% for c in categories %}
+            <option value="{{ c.id }}"
+                {% if selected_category and selected_category|int == c.id %}
+                    selected
+                {% endif %}
+            >
+                {{ c.name }}
+            </option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="col-md-4">
+        <button class="btn btn-primary w-100">
+            ค้นหา
+        </button>
+    </div>
+
+</form>
+
+
 <div class="row">
-    {% for category in categories %}
+    {% for product in products %}
     <div class="col-md-3 mb-4">
-        <div class="card text-center shadow-sm">
+        <div class="card shadow-sm text-center">
+            <img src="{{ url_for('static', filename='images/' + product.image) }}"
+                 class="card-img-top"
+                 style="height:200px; object-fit:cover;">
+
             <div class="card-body">
-                <h5 class="card-title">{{ category.name }}</h5>
-                <a href="{{ url_for('main.category_detail', id=category.id) }}" class="btn btn-primary">
-                    ดูสินค้า
+                <h6>{{ product.name }}</h6>
+                <p>{{ product.price }} บาท</p>
+                <a href="{{ url_for('main.add_to_cart', product_id=product.id) }}"
+                   class="btn btn-success btn-sm">
+                   เพิ่มลงตะกร้า
                 </a>
             </div>
         </div>

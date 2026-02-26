@@ -9,8 +9,28 @@ main = Blueprint("main", __name__)
 # ---------------- HOME ----------------
 @main.route("/")
 def home():
+
+    search = request.args.get("search")
+    category_id = request.args.get("category")
+
+    query = Product.query
+
+    if search:
+        query = query.filter(Product.name.contains(search))
+
+    if category_id:
+        query = query.filter(Product.category_id == int(category_id))
+
+    products = query.all()
     categories = Category.query.all()
-    return render_template("index.html", categories=categories)
+
+    return render_template(
+        "index.html",
+        products=products,
+        categories=categories,
+        search=search,
+        selected_category=category_id,
+    )
 
 
 # ---------------- CATEGORY ----------------
