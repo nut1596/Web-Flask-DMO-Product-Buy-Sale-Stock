@@ -9,31 +9,39 @@ main = Blueprint("main", __name__)
 # ---------------- HOME ----------------
 @main.route("/")
 def home():
-
     search = request.args.get("search")
-    category_id = request.args.get("category")
+    selected_category = request.args.get("category")
+    sort = request.args.get("sort")
     page = request.args.get("page", 1, type=int)
 
     query = Product.query
 
+    # Search
     if search:
         query = query.filter(Product.name.contains(search))
 
-    if category_id:
-        query = query.filter(Product.category_id == int(category_id))
+    # Filter Category
+    if selected_category:
+        query = query.filter_by(category_id=selected_category)
+
+    # Sorting
+    if sort == "price_asc":
+        query = query.order_by(Product.price.asc())
+    elif sort == "price_desc":
+        query = query.order_by(Product.price.desc())
 
     pagination = query.paginate(page=page, per_page=8)
 
-    products = pagination.items
     categories = Category.query.all()
 
     return render_template(
         "index.html",
-        products=products,
-        categories=categories,
+        products=pagination.items,
         pagination=pagination,
+        categories=categories,
         search=search,
-        selected_category=category_id,
+        selected_category=selected_category,
+        sort=sort,
     )
 
 
