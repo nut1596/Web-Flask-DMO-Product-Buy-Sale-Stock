@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4">เพิ่มสินค้าใหม่</h2>
+
+<form method="POST">
+    <div class="mb-3">
+        <label>ชื่อสินค้า</label>
+        <input type="text" name="name" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>ราคา</label>
+        <input type="number" name="price" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>จำนวน Stock</label>
+        <input type="number" name="stock" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>ชื่อไฟล์รูป (เช่น default.png)</label>
+        <input type="text" name="image" class="form-control" required>
+    </div>
+
+    <div class="mb-3">
+        <label>หมวดหมู่</label>
+        <select name="category_id" class="form-control">
+            {% for c in categories %}
+            <option value="{{ c.id }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button class="btn btn-primary">บันทึก</button>
+</form>
+{% endblock %}

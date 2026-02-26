@@ -164,6 +164,20 @@ def admin_dashboard():
     )
 
 
+@app.route("/admin/products")
+def admin_products():
+    products = Product.query.all()
+    return render_template("admin_products.html", products=products)
+
+
+@app.route("/admin/products/delete/<int:id>")
+def delete_product(id):
+    product = Product.query.get_or_404(id)
+    db.session.delete(product)
+    db.session.commit()
+    return redirect(url_for("admin_products"))
+
+
 # ------------------
 # Initialize Database
 # ------------------
