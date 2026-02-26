@@ -1,8 +1,11 @@
+import os
+from werkzeug.utils import secure_filename
 from flask import Flask
 from models import db, Category, Product, Discount
 from routes.main_routes import main
 from routes.admin_routes import admin
 from routes.auth_routes import auth
+
 
 app = Flask(__name__)
 
@@ -10,11 +13,17 @@ app.config["SECRET_KEY"] = "supersecretkey"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+
+app.config["UPLOAD_FOLDER"] = "static/images"
+os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
+
 db.init_app(app)
 
 app.register_blueprint(main)
 app.register_blueprint(admin)
 app.register_blueprint(auth)
+
 
 if __name__ == "__main__":
     with app.app_context():

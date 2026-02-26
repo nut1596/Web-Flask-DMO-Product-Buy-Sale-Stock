@@ -1,6 +1,9 @@
 from flask import Blueprint, render_template, session, redirect, url_for, request
 from models import Product, Order, Category
 from models import db
+from werkzeug.utils import secure_filename
+from flask import current_app
+import os
 
 admin = Blueprint("admin", __name__)
 
@@ -53,14 +56,22 @@ def add_product():
         name = request.form["name"]
         price = float(request.form["price"])
         stock = int(request.form["stock"])
-        image = request.form["image"]
         category_id = int(request.form["category_id"])
+
+        file = request.files["image"]
+
+        if file and file.filename != "":
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+            file.save(filepath)
+        else:
+            filename = "default.png"
 
         new_product = Product(
             name=name,
             price=price,
             stock=stock,
-            image=image,
+            image=filename,
             category_id=category_id,
         )
 
@@ -85,8 +96,15 @@ def edit_product(id):
         product.name = request.form["name"]
         product.price = float(request.form["price"])
         product.stock = int(request.form["stock"])
-        product.image = request.form["image"]
         product.category_id = int(request.form["category_id"])
+
+        file = request.files["image"]
+
+        if file and file.filename != "":
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+            file.save(filepath)
+            product.image = filename
 
         db.session.commit()
 

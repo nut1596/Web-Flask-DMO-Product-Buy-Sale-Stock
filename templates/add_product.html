@@ -3,7 +3,7 @@
 {% block content %}
 <h2 class="mb-4">เพิ่มสินค้าใหม่</h2>
 
-<form method="POST">
+<form method="POST" enctype="multipart/form-data">
     <div class="mb-3">
         <label>ชื่อสินค้า</label>
         <input type="text" name="name" class="form-control" required>
@@ -20,8 +20,8 @@
     </div>
 
     <div class="mb-3">
-        <label>ชื่อไฟล์รูป (เช่น default.png)</label>
-        <input type="text" name="image" class="form-control" required>
+        <label>อัปโหลดรูปภาพ</label>
+        <input type="file" name="image" class="form-control">
     </div>
 
     <div class="mb-3">
