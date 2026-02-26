@@ -105,3 +105,18 @@ def order_detail(id):
     order = Order.query.get_or_404(id)
 
     return render_template("order_detail.html", order=order)
+
+
+@admin.route("/admin/orders/<int:id>/status/<string:status>")
+def update_status(id, status):
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.login"))
+
+    order = Order.query.get_or_404(id)
+
+    if status in ["Pending", "Paid", "Cancelled"]:
+        order.status = status
+        db.session.commit()
+
+    return redirect(url_for("admin.admin_dashboard"))

@@ -34,6 +34,7 @@
             <th>ยอดรวม</th>
             <th>วันที่</th>
             <th>รายละเอียด</th>
+            <th>สถานะ</th>
         </tr>
     </thead>
     <tbody>
@@ -51,6 +52,24 @@
                 class="btn btn-info btn-sm">
                 ดู
                 </a>
+                <a href="{{ url_for('admin.update_status', id=order.id, status='Paid') }}"
+                class="btn btn-success btn-sm">
+                Paid
+                </a>
+
+                <a href="{{ url_for('admin.update_status', id=order.id, status='Cancelled') }}"
+                class="btn btn-danger btn-sm">
+                Cancel
+                </a>
+            </td>
+            <td>
+                {% if order.status == "Pending" %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% elif order.status == "Paid" %}
+                    <span class="badge bg-success">Paid</span>
+                {% elif order.status == "Cancelled" %}
+                    <span class="badge bg-danger">Cancelled</span>
+                {% endif %}
             </td>
         </tr>
         {% endfor %}

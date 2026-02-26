@@ -30,6 +30,8 @@ class Order(db.Model):
     total_amount = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+    status = db.Column(db.String(20), default="Pending")
+
     items = db.relationship("OrderItem", backref="order", lazy=True)
 
 
