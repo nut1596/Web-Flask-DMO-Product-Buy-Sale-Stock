@@ -1,3 +1,11 @@
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import pagesizes
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from flask import send_file
+import io
 from sqlalchemy import func
 from flask import Blueprint, render_template, session, redirect, url_for, request
 from models import Product, Order, Category
@@ -37,6 +45,57 @@ def admin_dashboard():
         total_orders=total_orders,
         labels=labels,
         data=data,
+    )
+
+
+@admin.route("/admin/export/pdf")
+def export_pdf():
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.login"))
+
+    orders = Order.query.order_by(Order.created_at.desc()).all()
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=pagesizes.A4)
+    elements = []
+
+    styles = getSampleStyleSheet()
+    elements.append(Paragraph("DMO Stock - Sales Report", styles["Title"]))
+    elements.append(Spacer(1, 12))
+
+    data = [["Order ID", "Total", "Date", "Status"]]
+
+    for order in orders:
+        data.append(
+            [
+                f"#{order.id}",
+                f"{order.total_amount} Baht",
+                order.created_at.strftime("%d/%m/%Y"),
+                order.status,
+            ]
+        )
+
+    table = Table(data)
+    table.setStyle(
+        TableStyle(
+            [
+                ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                ("GRID", (0, 0), (-1, -1), 1, colors.black),
+            ]
+        )
+    )
+
+    elements.append(table)
+
+    doc.build(elements)
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="sales_report.pdf",
+        mimetype="application/pdf",
     )
 
 

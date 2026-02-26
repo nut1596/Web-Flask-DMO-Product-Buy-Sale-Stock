@@ -22,7 +22,11 @@
             <h3>{{ total_orders }}</h3>
         </div>
     </div>
-</div>
+</div> 
+
+<a href="{{ url_for('admin.export_pdf') }}" class="btn btn-danger mb-3">
+    ดาวน์โหลดรายงาน PDF
+</a>
 
 <hr>
 
