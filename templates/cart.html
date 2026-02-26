@@ -17,7 +17,17 @@
         {% for product, quantity, subtotal in cart_items %}
         <tr>
             <td>{{ product.name }}</td>
-            <td>{{ quantity }}</td>
+            <td>
+                <div class="d-flex justify-content-center align-items-center gap-2">
+                    <a href="{{ url_for('main.decrease_quantity', product_id=product.id) }}"
+                    class="btn btn-outline-danger btn-sm">-</a>
+
+                    <span>{{ quantity }}</span>
+
+                    <a href="{{ url_for('main.increase_quantity', product_id=product.id) }}"
+                    class="btn btn-outline-success btn-sm">+</a>
+                </div>
+            </td>
             <td>{{ subtotal }} บาท</td>
             <td>
                 <a href="{{ url_for('main.remove_from_cart', product_id=product.id) }}"

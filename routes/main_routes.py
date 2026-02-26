@@ -104,6 +104,40 @@ def clear_cart():
     return redirect(url_for("main.cart"))
 
 
+@main.route("/increase_quantity/<int:product_id>")
+def increase_quantity(product_id):
+    if "cart" in session:
+        cart = session["cart"]
+        pid = str(product_id)
+
+        product = Product.query.get_or_404(product_id)
+
+        if pid in cart and cart[pid] < product.stock:
+            cart[pid] += 1
+
+        session["cart"] = cart
+        session.modified = True
+
+    return redirect(url_for("main.cart"))
+
+
+@main.route("/decrease_quantity/<int:product_id>")
+def decrease_quantity(product_id):
+    if "cart" in session:
+        cart = session["cart"]
+        pid = str(product_id)
+
+        if pid in cart:
+            cart[pid] -= 1
+            if cart[pid] <= 0:
+                del cart[pid]
+
+        session["cart"] = cart
+        session.modified = True
+
+    return redirect(url_for("main.cart"))
+
+
 # ---------------- CHECKOUT ----------------
 @main.route("/checkout")
 def checkout():
