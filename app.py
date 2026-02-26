@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Flask, render_template, session, redirect, url_for, request
 from flask_sqlalchemy import SQLAlchemy
 
@@ -38,6 +39,7 @@ class Discount(db.Model):
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     total_amount = db.Column(db.Float, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # 👈 เพิ่มตรงนี้
 
 
 # ------------------
@@ -149,7 +151,8 @@ def checkout():
 
 @app.route("/admin")
 def admin_dashboard():
-    orders = Order.query.all()
+    orders = Order.query.order_by(Order.created_at.desc()).all()
+
     total_sales = sum(order.total_amount for order in orders)
     total_orders = len(orders)
 

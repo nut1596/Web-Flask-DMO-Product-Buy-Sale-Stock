@@ -25,13 +25,15 @@
         <tr>
             <th>Order ID</th>
             <th>ยอดรวม</th>
+            <th>วันที่</th>
         </tr>
     </thead>
     <tbody>
         {% for order in orders %}
         <tr>
-            <td>{{ order.id }}</td>
+            <td>#{{ order.id }}</td>
             <td>{{ order.total_amount }} บาท</td>
+            <td>{{ order.created_at.strftime("%d/%m/%Y %H:%M") }}</td>
         </tr>
         {% endfor %}
     </tbody>
