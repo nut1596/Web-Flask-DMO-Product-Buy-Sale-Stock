@@ -35,6 +35,12 @@
 
 <h4 class="text-end">รวมทั้งหมด: {{ total }} บาท</h4>
 
+<div class="text-end mt-3">
+    <a href="{{ url_for('checkout') }}" class="btn btn-primary">
+        ชำระเงิน
+    </a>
+</div>
+
 <form method="POST" class="mt-3">
     <div class="row justify-content-end">
         <div class="col-md-4">

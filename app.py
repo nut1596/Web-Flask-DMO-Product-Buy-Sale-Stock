@@ -35,6 +35,11 @@ class Discount(db.Model):
     percent = db.Column(db.Float, nullable=False)
 
 
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    total_amount = db.Column(db.Float, nullable=False)
+
+
 # ------------------
 # Routes
 # ------------------
@@ -115,6 +120,31 @@ def remove_from_cart(index):
 def clear_cart():
     session.pop("cart", None)
     return redirect(url_for("cart"))
+
+
+@app.route("/checkout")
+def checkout():
+    if "cart" not in session or not session["cart"]:
+        return redirect(url_for("cart"))
+
+    total = 0
+
+    for product_id in session["cart"]:
+        product = Product.query.get(product_id)
+        if product and product.stock > 0:
+            product.stock -= 1
+            total += product.price
+
+    # บันทึกคำสั่งซื้อ
+    new_order = Order(total_amount=total)
+    db.session.add(new_order)
+
+    db.session.commit()
+
+    # ล้างตะกร้า
+    session.pop("cart", None)
+
+    return render_template("checkout_success.html", total=total)
 
 
 # ------------------
