@@ -1,3 +1,4 @@
+from models import Category, Product, Discount, Order, OrderItem
 from flask import Blueprint, render_template, session, redirect, url_for, request
 from models import Category, Product, Discount, Order
 from models import db
@@ -145,15 +146,28 @@ def checkout():
         return redirect(url_for("main.cart"))
 
     total = 0
+    new_order = Order(total_amount=0)
+    db.session.add(new_order)
+    db.session.flush()  # เพื่อให้ได้ order.id ก่อน commit
 
     for product_id_str, quantity in session["cart"].items():
         product = Product.query.get(int(product_id_str))
+
         if product and product.stock >= quantity:
             product.stock -= quantity
-            total += product.price * quantity
+            subtotal = product.price * quantity
+            total += subtotal
 
-    new_order = Order(total_amount=total)
-    db.session.add(new_order)
+            order_item = OrderItem(
+                order_id=new_order.id,
+                product_id=product.id,
+                quantity=quantity,
+                price=product.price,
+            )
+
+            db.session.add(order_item)
+
+    new_order.total_amount = total
     db.session.commit()
 
     session.pop("cart", None)
