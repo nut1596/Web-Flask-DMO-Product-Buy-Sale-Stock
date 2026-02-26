@@ -147,6 +147,20 @@ def checkout():
     return render_template("checkout_success.html", total=total)
 
 
+@app.route("/admin")
+def admin_dashboard():
+    orders = Order.query.all()
+    total_sales = sum(order.total_amount for order in orders)
+    total_orders = len(orders)
+
+    return render_template(
+        "admin.html",
+        orders=orders,
+        total_sales=total_sales,
+        total_orders=total_orders,
+    )
+
+
 # ------------------
 # Initialize Database
 # ------------------

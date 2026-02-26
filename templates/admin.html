@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4 text-center">Admin Dashboard</h2>
+
+<div class="row mb-4 text-center">
+    <div class="col-md-6">
+        <div class="card bg-dark text-white p-3">
+            <h5>ยอดขายรวม</h5>
+            <h3>{{ total_sales }} บาท</h3>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card bg-primary text-white p-3">
+            <h5>จำนวนคำสั่งซื้อ</h5>
+            <h3>{{ total_orders }}</h3>
+        </div>
+    </div>
+</div>
+
+<h4>รายการคำสั่งซื้อ</h4>
+
+<table class="table table-bordered text-center">
+    <thead class="table-dark">
+        <tr>
+            <th>Order ID</th>
+            <th>ยอดรวม</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.total_amount }} บาท</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
