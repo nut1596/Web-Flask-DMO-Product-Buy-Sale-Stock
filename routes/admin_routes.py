@@ -1,3 +1,4 @@
+from openpyxl import Workbook
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
@@ -96,6 +97,44 @@ def export_pdf():
         as_attachment=True,
         download_name="sales_report.pdf",
         mimetype="application/pdf",
+    )
+
+
+@admin.route("/admin/export/excel")
+def export_excel():
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.login"))
+
+    orders = Order.query.order_by(Order.created_at.desc()).all()
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Sales Report"
+
+    # Header
+    ws.append(["Order ID", "Total (Baht)", "Date", "Status"])
+
+    # Data
+    for order in orders:
+        ws.append(
+            [
+                order.id,
+                order.total_amount,
+                order.created_at.strftime("%d/%m/%Y"),
+                order.status,
+            ]
+        )
+
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="sales_report.xlsx",
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
 
