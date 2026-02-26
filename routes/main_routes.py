@@ -12,6 +12,7 @@ def home():
 
     search = request.args.get("search")
     category_id = request.args.get("category")
+    page = request.args.get("page", 1, type=int)
 
     query = Product.query
 
@@ -21,13 +22,16 @@ def home():
     if category_id:
         query = query.filter(Product.category_id == int(category_id))
 
-    products = query.all()
+    pagination = query.paginate(page=page, per_page=8)
+
+    products = pagination.items
     categories = Category.query.all()
 
     return render_template(
         "index.html",
         products=products,
         categories=categories,
+        pagination=pagination,
         search=search,
         selected_category=category_id,
     )
