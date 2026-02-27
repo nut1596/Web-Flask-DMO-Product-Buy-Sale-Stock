@@ -9,20 +9,18 @@ from routes.admin_routes import admin
 from routes.auth_routes import auth
 from routes.api_routes import api
 from extensions import db, cache, limiter
+from config import DevelopmentConfig, ProductionConfig
 
 
 app = Flask(__name__)
 
-# ---------------- CONFIG ----------------
-app.config["SECRET_KEY"] = "supersecretkey"
-app.config["JWT_SECRET_KEY"] = "super-jwt-secret-key"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+env = os.environ.get("FLASK_ENV", "development")
 
-app.config["CACHE_TYPE"] = "SimpleCache"
-app.config["CACHE_DEFAULT_TIMEOUT"] = 60
+if env == "production":
+    app.config.from_object(ProductionConfig)
+else:
+    app.config.from_object(DevelopmentConfig)
 
-app.config["UPLOAD_FOLDER"] = "static/images"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 # ---------------- INIT EXTENSIONS ----------------
