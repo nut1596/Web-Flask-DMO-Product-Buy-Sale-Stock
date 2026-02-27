@@ -91,3 +91,9 @@ def customer_login():
 def logout():
     session.clear()
     return redirect(url_for("main.home"))
+
+
+@auth.route("/customer-logout")
+def customer_logout():
+    session.pop("customer_id", None)
+    return redirect(url_for("main.home"))

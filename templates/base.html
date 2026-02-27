@@ -78,10 +78,6 @@
             </span>
         </a>
 
-        <a href="{{ url_for('auth.customer_login') }}"
-            class="btn btn-sm btn-info">
-            Customer Login
-        </a>
         {% if session.get("customer_id") %}
             <a href="{{ url_for('auth.logout') }}"
                 class="btn btn-sm btn-error">
@@ -89,6 +85,17 @@
             </a>
         {% endif %}
 
+
+        {% if session.get("customer_id") %}
+            <span class="text-sm text-green-400">
+                ลูกค้าเข้าสู่ระบบแล้ว
+            </span>
+        {% else %}
+            <a href="{{ url_for('auth.customer_login') }}"
+            class="btn btn-sm btn-info">
+            Customer Login
+            </a>
+        {% endif %}
     </div>
 </div>
 

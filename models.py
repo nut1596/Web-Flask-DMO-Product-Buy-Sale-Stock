@@ -32,6 +32,8 @@ class Order(db.Model):
     note = db.Column(db.String(300))
     slip_image = db.Column(db.String(200))
     transfer_time = db.Column(db.DateTime)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
+    customer = db.relationship("Customer", backref="orders")
 
     status = db.Column(db.String(20), default="Pending")
 

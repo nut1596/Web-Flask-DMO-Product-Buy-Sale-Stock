@@ -86,6 +86,10 @@ def add_to_cart(product_id):
 @main.route("/cart", methods=["GET", "POST"])
 def cart():
 
+    # ✅ ต้อง login ก่อน
+    if "customer_id" not in session:
+        return redirect(url_for("auth.customer_login"))
+
     cart_items = []
     total = 0
 
@@ -189,6 +193,10 @@ def decrease_quantity(product_id):
 @main.route("/checkout", methods=["POST"])
 def checkout():
 
+    # ✅ ต้อง login ก่อน
+    if "customer_id" not in session:
+        return redirect(url_for("auth.customer_login"))
+
     from datetime import datetime
     from werkzeug.utils import secure_filename
     import os
@@ -210,6 +218,7 @@ def checkout():
     new_order = Order(
         total_amount=0,
         status="Waiting Verification",
+        customer_id=session["customer_id"],
         tamer_name=tamer_name,
         note=note,
         transfer_time=datetime.fromisoformat(transfer_time),
