@@ -69,6 +69,9 @@
 <h4 class="mt-4">กราฟยอดขาย</h4>
 <canvas id="salesChart" height="100"></canvas>
 
+<h4 class="mt-5">Monthly Revenue (Paid Orders)</h4>
+<canvas id="monthlyChart" height="100"></canvas>
+
 <form method="GET" class="mb-3">
     <select name="status" class="form-control w-25 d-inline">
 
@@ -100,6 +103,28 @@
     </select>
 
     <button class="btn btn-primary">กรอง</button>
+</form>
+
+<form method="GET" class="row mb-4">
+
+    <div class="col-md-3">
+        <input type="date" name="start_date"
+               value="{{ start_date or '' }}"
+               class="form-control">
+    </div>
+
+    <div class="col-md-3">
+        <input type="date" name="end_date"
+               value="{{ end_date or '' }}"
+               class="form-control">
+    </div>
+
+    <div class="col-md-3">
+        <button class="btn btn-success w-100">
+            กรองช่วงเวลา
+        </button>
+    </div>
+
 </form>
 
 <h4>รายการคำสั่งซื้อ</h4>
@@ -177,6 +202,36 @@ document.addEventListener("DOMContentLoaded", function() {
                     borderWidth: 2,
                     tension: 0.3,
                     fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    }
+
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const ctx2 = document.getElementById('monthlyChart');
+
+    if (ctx2 && {{ monthly_labels|length }} > 0) {
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: {{ monthly_labels|tojson }},
+                datasets: [{
+                    label: 'Monthly Revenue (บาท)',
+                    data: {{ monthly_revenue|tojson }},
+                    borderWidth: 1
                 }]
             },
             options: {

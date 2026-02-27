@@ -27,13 +27,45 @@ def admin_dashboard():
     # รับค่า filter จาก URL เช่น ?status=Paid
     status_filter = request.args.get("status")
 
+    from datetime import datetime
+
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
+
     query = Order.query
 
-    # ถ้ามีการเลือกสถานะ ให้กรองข้อมูล
     if status_filter:
         query = query.filter_by(status=status_filter)
 
+    if start_date:
+        start = datetime.strptime(start_date, "%Y-%m-%d")
+        query = query.filter(Order.created_at >= start)
+
+    if end_date:
+        end = datetime.strptime(end_date, "%Y-%m-%d")
+        query = query.filter(Order.created_at <= end)
+
     orders = query.order_by(Order.created_at.desc()).all()
+
+    # ===============================
+    # 🔥 Monthly Revenue Analytics
+    # ===============================
+
+    from sqlalchemy import func
+
+    monthly_data = (
+        db.session.query(
+            func.strftime("%Y-%m", Order.created_at).label("month"),
+            func.sum(Order.total_amount),
+        )
+        .filter(Order.status == "Paid")  # คิดเฉพาะ Paid
+        .group_by("month")
+        .order_by("month")
+        .all()
+    )
+
+    monthly_labels = [m[0] for m in monthly_data]
+    monthly_revenue = [float(m[1]) for m in monthly_data]
 
     total_sales = sum(order.total_amount for order in orders)
     total_orders = len(orders)
@@ -75,6 +107,8 @@ def admin_dashboard():
         average_order_value=average_order_value,
         paid_revenue=paid_revenue,
         conversion_rate=conversion_rate,
+        monthly_labels=monthly_labels,
+        monthly_revenue=monthly_revenue,
     )
 
 
