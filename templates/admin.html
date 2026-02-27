@@ -29,6 +29,33 @@
     </div>
 </div> 
 
+
+<div class="row text-center mb-4">
+
+    <div class="col-md-4">
+        <div class="card bg-success text-white p-3">
+            <h6>Paid Revenue</h6>
+            <h4>{{ paid_revenue | round(2) }} บาท</h4>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-info text-white p-3">
+            <h6>Average Order Value</h6>
+            <h4>{{ average_order_value | round(2) }} บาท</h4>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark p-3">
+            <h6>Conversion Rate</h6>
+            <h4>{{ conversion_rate | round(2) }} %</h4>
+        </div>
+    </div>
+
+</div>
+
+
 <a href="{{ url_for('admin.export_pdf') }}" class="btn btn-danger mb-3">
     ดาวน์โหลดรายงาน PDF
 </a>

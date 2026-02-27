@@ -38,6 +38,21 @@ def admin_dashboard():
     total_sales = sum(order.total_amount for order in orders)
     total_orders = len(orders)
 
+    # 🔥 คำนวณเฉพาะออเดอร์ที่ Paid
+
+    paid_orders = Order.query.filter_by(status="Paid").all()
+    paid_revenue = sum(order.total_amount for order in paid_orders)
+
+    # 🔥 Average Order Value (AOV)
+    average_order_value = 0
+    if total_orders > 0:
+        average_order_value = total_sales / total_orders
+
+    # 🔥 Conversion Rate (Paid / Total)
+    conversion_rate = 0
+    if total_orders > 0:
+        conversion_rate = (len(paid_orders) / total_orders) * 100
+
     # 🔥 Group by Date (รายวัน)
     daily_sales = (
         db.session.query(func.date(Order.created_at), func.sum(Order.total_amount))
@@ -57,6 +72,9 @@ def admin_dashboard():
         labels=labels,
         data=data,
         status_filter=status_filter,
+        average_order_value=average_order_value,
+        paid_revenue=paid_revenue,
+        conversion_rate=conversion_rate,
     )
 
 
