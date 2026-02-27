@@ -1,3 +1,5 @@
+from linecache import cache
+
 from openpyxl import Workbook
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib import colors
@@ -20,6 +22,7 @@ admin = Blueprint("admin", __name__)
 
 
 @admin.route("/admin")
+@cache.cached(timeout=60, query_string=True)
 def admin_dashboard():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.login"))

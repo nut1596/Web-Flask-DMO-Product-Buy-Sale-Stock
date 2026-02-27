@@ -6,9 +6,16 @@ from models import AdminUser
 from routes.main_routes import main
 from routes.admin_routes import admin
 from routes.auth_routes import auth
+from flask_caching import Cache
+from app import cache
 
 
 app = Flask(__name__)
+
+app.config["CACHE_TYPE"] = "SimpleCache"
+app.config["CACHE_DEFAULT_TIMEOUT"] = 60  # cache 60 วินาที
+
+cache = Cache(app)
 
 app.config["SECRET_KEY"] = "supersecretkey"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
