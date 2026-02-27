@@ -7,6 +7,31 @@
     <!-- Tailwind + DaisyUI -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" />
+
+    <style>
+    /* Animated Gradient Background */
+    body {
+        background: linear-gradient(-45deg, #0f0f0f, #111827, #0c0c1d, #000000);
+        background-size: 400% 400%;
+        animation: gradientMove 15s ease infinite;
+    }
+
+    @keyframes gradientMove {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Glow Effect */
+    .glow-card {
+        transition: all 0.3s ease;
+    }
+
+    .glow-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+    }
+    </style>
 </head>
 
 <body class="bg-black text-white min-h-screen">
