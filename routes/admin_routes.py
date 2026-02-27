@@ -56,9 +56,9 @@ def admin_dashboard():
     monthly_data = (
         db.session.query(
             func.strftime("%Y-%m", Order.created_at).label("month"),
-            func.sum(Order.total_amount),
+            func.coalesce(func.sum(Order.total_amount), 0),
         )
-        .filter(Order.status == "Paid")  # คิดเฉพาะ Paid
+        .filter(Order.status == "Paid")
         .group_by("month")
         .order_by("month")
         .all()
@@ -67,23 +67,36 @@ def admin_dashboard():
     monthly_labels = [m[0] for m in monthly_data]
     monthly_revenue = [float(m[1]) for m in monthly_data]
 
-    total_sales = sum(order.total_amount for order in orders)
-    total_orders = len(orders)
+    from sqlalchemy import func
 
-    # 🔥 คำนวณเฉพาะออเดอร์ที่ Paid
+    # 🔥 รวมยอดขายทั้งหมด
+    total_sales = db.session.query(
+        func.coalesce(func.sum(Order.total_amount), 0)
+    ).scalar()
 
-    paid_orders = Order.query.filter_by(status="Paid").all()
-    paid_revenue = sum(order.total_amount for order in paid_orders)
+    # 🔥 จำนวน order ทั้งหมด
+    total_orders = db.session.query(func.count(Order.id)).scalar()
+
+    # 🔥 รายได้เฉพาะ Paid
+    paid_revenue = (
+        db.session.query(func.coalesce(func.sum(Order.total_amount), 0))
+        .filter(Order.status == "Paid")
+        .scalar()
+    )
+
+    # 🔥 จำนวน Paid
+    paid_count = (
+        db.session.query(func.count(Order.id)).filter(Order.status == "Paid").scalar()
+    )
 
     # 🔥 Average Order Value (AOV)
     average_order_value = 0
     if total_orders > 0:
         average_order_value = total_sales / total_orders
 
-    # 🔥 Conversion Rate (Paid / Total)
     conversion_rate = 0
     if total_orders > 0:
-        conversion_rate = (len(paid_orders) / total_orders) * 100
+        conversion_rate = (paid_count / total_orders) * 100
 
     # 🔥 Group by Date (รายวัน)
     daily_sales = (
