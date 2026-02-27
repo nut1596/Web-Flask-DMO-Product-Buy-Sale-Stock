@@ -1,83 +1,167 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2 class="mb-4 text-center">ตะกร้าสินค้า</h2>
 
-{% if cart_items %}
-<table class="table table-bordered text-center">
-    <thead class="table-dark">
-        <tr>
-            <th>สินค้า</th>
-            <th>จำนวน</th>
-            <th>ราคารวม</th>
-            <th>จัดการ</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for product, quantity, subtotal in cart_items %}
-        <tr>
-            <td>{{ product.name }}</td>
-            <td>
-                <div class="d-flex justify-content-center align-items-center gap-2">
-                    <a href="{{ url_for('main.decrease_quantity', product_id=product.id) }}"
-                    class="btn btn-outline-danger btn-sm">-</a>
+<div class="max-w-7xl mx-auto grid lg:grid-cols-3 gap-10">
 
-                    <span>{{ quantity }}</span>
+    <!-- ================= LEFT SIDE : CART TABLE ================= -->
+    <div class="lg:col-span-2 bg-black/60 p-8 rounded-2xl border border-gray-800 shadow-xl">
 
-                    <a href="{{ url_for('main.increase_quantity', product_id=product.id) }}"
-                    class="btn btn-outline-success btn-sm">+</a>
-                </div>
-            </td>
-            <td>{{ subtotal }} บาท</td>
-            <td>
-                <a href="{{ url_for('main.remove_from_cart', product_id=product.id) }}"
-                class="btn btn-danger btn-sm">
-                ลบ
-                </a>
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+        <h2 class="text-2xl font-bold mb-6">ตะกร้าสินค้า</h2>
 
-<div class="text-end mb-3">
-    <a href="{{ url_for('main.clear_cart') }}" class="btn btn-secondary">
-        ล้างตะกร้า
-    </a>
-</div>
+        {% if cart_items %}
 
-<h4 class="text-end">รวมทั้งหมด: {{ total }} บาท</h4>
+        <div class="overflow-x-auto">
+            <table class="table text-white">
 
-<div class="text-end mt-3">
-    <a href="{{ url_for('main.checkout') }}" class="btn btn-primary">
-        ชำระเงิน
-    </a>
-</div>
+                <thead class="bg-gray-900 text-gray-400">
+                    <tr>
+                        <th>สินค้า</th>
+                        <th>จำนวน</th>
+                        <th>ราคา</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
 
-<form method="POST" class="mt-3">
-    <div class="row justify-content-end">
-        <div class="col-md-4">
-            <input type="text" name="discount_code"
-                   class="form-control"
-                   placeholder="ใส่โค้ดส่วนลด">
+                <tbody>
+                    {% for product, quantity, subtotal in cart_items %}
+                    <tr class="hover:bg-gray-900 transition">
+                        <td>{{ product.name }}</td>
+
+                        <td>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ url_for('main.decrease_quantity', product_id=product.id) }}"
+                                   class="btn btn-xs btn-outline">-</a>
+
+                                <span>{{ quantity }}</span>
+
+                                <a href="{{ url_for('main.increase_quantity', product_id=product.id) }}"
+                                   class="btn btn-xs btn-outline">+</a>
+                            </div>
+                        </td>
+
+                        <td>{{ subtotal }} บาท</td>
+
+                        <td>
+                            <a href="{{ url_for('main.remove_from_cart', product_id=product.id) }}"
+                               class="btn btn-xs btn-error">
+                               ลบ
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+
+            </table>
         </div>
-        <div class="col-md-2">
-            <button class="btn btn-success w-100">
+
+        {% else %}
+            <p class="text-gray-400">ยังไม่มีสินค้าในตะกร้า</p>
+        {% endif %}
+
+    </div>
+
+
+
+    <!-- ================= RIGHT SIDE : PAYMENT ================= -->
+    <div class="bg-black/60 p-8 rounded-2xl border border-gray-800 shadow-xl space-y-6">
+
+        <h3 class="text-xl font-semibold">สรุปยอดและชำระเงิน</h3>
+
+        <!-- ================= DISCOUNT CODE ================= -->
+        <form method="POST"
+            action="{{ url_for('main.cart') }}"
+            class="flex gap-2">
+
+            <input type="text"
+                name="discount_code"
+                placeholder="ใส่โค้ดส่วนลด"
+                class="input input-bordered w-full bg-black border-gray-700">
+
+            <button class="btn btn-success">
                 ใช้โค้ด
             </button>
+        </form>
+        
+        {% if discount_code %}
+        <div class="flex items-center justify-between bg-green-900/40 p-3 rounded-lg mt-3">
+            <div>
+                ใช้โค้ด: 
+                <span class="font-bold text-green-400">
+                    {{ discount_code }}
+                </span>
+                (ลด {{ discount_percent }}%)
+            </div>
+
+            <a href="{{ url_for('main.remove_discount') }}"
+            class="btn btn-xs btn-error">
+            ลบ
+            </a>
         </div>
+        {% endif %}
+
+        <div class="space-y-2 text-gray-300">
+            <p>ยอดรวม: <span class="font-bold text-white">{{ total }} บาท</span></p>
+            <p>ส่วนลด: <span class="text-green-400">-{{ discount_amount }} บาท</span></p>
+            <hr class="border-gray-700">
+            <p class="text-lg font-bold">
+                รวมทั้งหมด: {{ final_total }} บาท
+            </p>
+        </div>
+
+        
+        <!-- QR CODE -->
+        <div class="text-center space-y-3">
+            <h4 class="font-semibold">สแกน QR เพื่อชำระเงิน</h4>
+            <img src="{{ url_for('static', filename='images/qr.png') }}"
+                 class="w-48 mx-auto rounded-xl shadow-lg border border-gray-700">
+        </div>
+
+        <!-- PAYMENT FORM -->
+        <form method="POST"
+              action="{{ url_for('main.checkout') }}"
+              enctype="multipart/form-data"
+              class="space-y-4">
+
+            <div>
+                <label class="text-sm text-gray-400">ชื่อเทมเมอร์</label>
+                <input type="text"
+                       name="tamer_name"
+                       class="input input-bordered w-full bg-black border-gray-700"
+                       required>
+            </div>
+
+            <div>
+                <label class="text-sm text-gray-400">รายละเอียดเพิ่มเติม</label>
+                <textarea name="note"
+                          class="textarea textarea-bordered w-full bg-black border-gray-700"
+                          rows="2"></textarea>
+            </div>
+
+            <div>
+                <label class="text-sm text-gray-400">แนบสลิปการโอน</label>
+                <input type="file"
+                       name="slip"
+                       class="file-input file-input-bordered w-full"
+                       accept="image/*"
+                       required>
+            </div>
+
+            <div>
+                <label class="text-sm text-gray-400">วันเวลาที่โอน</label>
+                <input type="datetime-local"
+                       name="transfer_time"
+                       class="input input-bordered w-full bg-black border-gray-700"
+                       required>
+            </div>
+
+            <button class="btn bg-gradient-to-r from-cyan-500 to-purple-600 border-none w-full text-white hover:opacity-90">
+                ยืนยันการชำระเงิน
+            </button>
+
+        </form>
+
     </div>
-</form>
 
-{% if discount_amount > 0 %}
-<div class="text-end mt-3">
-    <p>ส่วนลด: -{{ discount_amount }} บาท</p>
-    <h4>ยอดสุทธิ: {{ final_total }} บาท</h4>
 </div>
-{% endif %}
-
-{% else %}
-<p class="text-center text-muted">ยังไม่มีสินค้าในตะกร้า</p>
-{% endif %}
 
 {% endblock %}

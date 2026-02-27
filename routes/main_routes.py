@@ -85,15 +85,15 @@ def add_to_cart(product_id):
 
 @main.route("/cart", methods=["GET", "POST"])
 def cart():
+
     cart_items = []
     total = 0
-    discount_amount = 0
-    final_total = 0
 
     # 🔥 กันกรณี session เก่าเป็น list
     if "cart" in session and isinstance(session["cart"], list):
         session["cart"] = {}
 
+    # ================= CALCULATE TOTAL =================
     if "cart" in session:
         for product_id_str, quantity in session["cart"].items():
             product = Product.query.get(int(product_id_str))
@@ -102,13 +102,21 @@ def cart():
                 cart_items.append((product, quantity, subtotal))
                 total += subtotal
 
+    # ================= APPLY DISCOUNT =================
     if request.method == "POST":
         code = request.form.get("discount_code")
+
         discount = Discount.query.filter_by(code=code).first()
 
         if discount:
-            discount_amount = total * (discount.percent / 100)
+            session["discount_percent"] = discount.percent
+            session["discount_code"] = discount.code
+        else:
+            session.pop("discount_percent", None)
+            session.pop("discount_code", None)
 
+    percent = session.get("discount_percent", 0)
+    discount_amount = total * (percent / 100)
     final_total = total - discount_amount
 
     return render_template(
@@ -117,6 +125,8 @@ def cart():
         total=total,
         discount_amount=discount_amount,
         final_total=final_total,
+        discount_code=session.get("discount_code"),
+        discount_percent=percent,
     )
 
 
@@ -176,15 +186,38 @@ def decrease_quantity(product_id):
 
 
 # ---------------- CHECKOUT ----------------
-@main.route("/checkout")
+@main.route("/checkout", methods=["POST"])
 def checkout():
+
+    from datetime import datetime
+    from werkzeug.utils import secure_filename
+    import os
+
     if "cart" not in session or not session["cart"]:
         return redirect(url_for("main.cart"))
 
+    tamer_name = request.form.get("tamer_name")
+    note = request.form.get("note")
+    transfer_time = request.form.get("transfer_time")
+    slip = request.files.get("slip")
+
+    filename = None
+    if slip:
+        filename = secure_filename(slip.filename)
+        slip.save(os.path.join("static/images", filename))
+
     total = 0
-    new_order = Order(total_amount=0)
+    new_order = Order(
+        total_amount=0,
+        status="Waiting Verification",
+        tamer_name=tamer_name,
+        note=note,
+        transfer_time=datetime.fromisoformat(transfer_time),
+        slip_image=filename,
+    )
+
     db.session.add(new_order)
-    db.session.flush()  # เพื่อให้ได้ order.id ก่อน commit
+    db.session.flush()
 
     for product_id_str, quantity in session["cart"].items():
         product = Product.query.get(int(product_id_str))
@@ -209,3 +242,10 @@ def checkout():
     session.pop("cart", None)
 
     return render_template("checkout_success.html", total=total)
+
+
+@main.route("/remove_discount")
+def remove_discount():
+    session.pop("discount_percent", None)
+    session.pop("discount_code", None)
+    return redirect(url_for("main.cart"))

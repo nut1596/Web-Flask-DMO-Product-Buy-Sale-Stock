@@ -28,6 +28,10 @@ class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     total_amount = db.Column(db.Float, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    tamer_name = db.Column(db.String(100))
+    note = db.Column(db.String(300))
+    slip_image = db.Column(db.String(200))
+    transfer_time = db.Column(db.DateTime)
 
     status = db.Column(db.String(20), default="Pending")
 
