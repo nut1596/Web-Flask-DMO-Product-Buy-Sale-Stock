@@ -1,54 +1,65 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<h2 class="text-3xl font-bold text-center mb-8">
-    เลือกสายการ์ด
-</h2>
+<!-- 🔥 HERO TITLE -->
+<div class="text-center mb-12">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">
+        เลือกสายการ์ด
+    </h1>
+    <p class="text-gray-400">
+        ค้นหา และจัดการการ์ดของคุณแบบมืออาชีพ
+    </p>
+</div>
 
-<!-- 🔍 SEARCH / FILTER -->
-<form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 
-    <input type="text"
-           name="search"
-           value="{{ search or '' }}"
-           placeholder="ค้นหาสินค้า..."
-           class="input input-bordered w-full" />
+<!-- 🔍 FILTER PANEL (Glass Effect) -->
+<div class="bg-white/5 backdrop-blur-md border border-gray-800 rounded-2xl p-6 mb-10 shadow-lg">
 
-    <select name="category" class="select select-bordered w-full">
-        <option value="">ทุกหมวดหมู่</option>
-        {% for c in categories %}
-        <option value="{{ c.id }}"
-            {% if selected_category and selected_category|int == c.id %}
-                selected
-            {% endif %}>
-            {{ c.name }}
-        </option>
-        {% endfor %}
-    </select>
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4">
 
-    <select name="sort" class="select select-bordered w-full">
-        <option value="">เรียงตามปกติ</option>
-        <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>
-            ราคาต่ำ → สูง
-        </option>
-        <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>
-            ราคาสูง → ต่ำ
-        </option>
-    </select>
+        <input type="text"
+               name="search"
+               value="{{ search or '' }}"
+               placeholder="ค้นหาสินค้า..."
+               class="input input-bordered bg-black/40 border-gray-700 focus:border-cyan-500 w-full" />
 
-    <button class="btn btn-primary w-full">
-        ค้นหา
-    </button>
+        <select name="category"
+                class="select select-bordered bg-black/40 border-gray-700 focus:border-purple-500 w-full">
+            <option value="">ทุกหมวดหมู่</option>
+            {% for c in categories %}
+            <option value="{{ c.id }}"
+                {% if selected_category and selected_category|int == c.id %}
+                    selected
+                {% endif %}>
+                {{ c.name }}
+            </option>
+            {% endfor %}
+        </select>
 
-</form>
+        <select name="sort"
+                class="select select-bordered bg-black/40 border-gray-700 focus:border-pink-500 w-full">
+            <option value="">เรียงตามปกติ</option>
+            <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>
+                ราคาต่ำ → สูง
+            </option>
+            <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>
+                ราคาสูง → ต่ำ
+            </option>
+        </select>
+
+        <button class="btn bg-cyan-500 hover:bg-cyan-400 text-black border-none w-full">
+            ค้นหา
+        </button>
+
+    </form>
+</div>
 
 
 <!-- 🛍 PRODUCT GRID -->
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
 
     {% for product in products %}
-    <div class="card bg-base-100 shadow-xl">
+    <div class="card bg-black border border-gray-800 shadow-xl hover:shadow-cyan-500/20 hover:-translate-y-2 transition duration-300">
 
         <figure>
             <img src="{{ url_for('static', filename='images/' + product.image) }}"
@@ -57,34 +68,34 @@
 
         <div class="card-body">
 
-            <h2 class="card-title">
+            <h2 class="card-title text-white">
                 {{ product.name }}
             </h2>
 
-            <p class="text-lg font-bold text-primary">
+            <p class="text-xl font-bold text-cyan-400">
                 {{ product.price }} บาท
             </p>
 
             <!-- 📦 STOCK STATUS -->
             {% if product.stock == 0 %}
-                <div class="badge badge-error">
+                <div class="badge bg-red-600 border-none">
                     สินค้าหมด
                 </div>
             {% elif product.stock <= 3 %}
-                <div class="badge badge-warning">
+                <div class="badge bg-yellow-500 text-black border-none">
                     เหลือ {{ product.stock }} ชิ้น
                 </div>
             {% else %}
-                <div class="badge badge-success">
+                <div class="badge bg-green-600 border-none">
                     พร้อมจำหน่าย
                 </div>
             {% endif %}
 
             <!-- 🛒 BUTTON -->
-            <div class="card-actions justify-end mt-3">
+            <div class="card-actions justify-end mt-4">
                 {% if product.stock > 0 %}
                     <a href="{{ url_for('main.add_to_cart', product_id=product.id) }}"
-                       class="btn btn-success btn-sm">
+                       class="btn bg-purple-600 hover:bg-purple-500 border-none btn-sm">
                         เพิ่มลงตะกร้า
                     </a>
                 {% else %}
@@ -103,11 +114,11 @@
 
 <!-- 📄 PAGINATION -->
 {% if pagination.pages > 1 %}
-<div class="flex justify-center mt-10">
+<div class="flex justify-center mt-12">
     <div class="join">
 
         {% if pagination.has_prev %}
-        <a class="join-item btn"
+        <a class="join-item btn bg-gray-800 border-gray-700 hover:bg-gray-700"
            href="{{ url_for('main.home',
                             page=pagination.prev_num,
                             search=search,
@@ -118,7 +129,12 @@
         {% endif %}
 
         {% for p in range(1, pagination.pages + 1) %}
-        <a class="join-item btn {% if p == pagination.page %}btn-active{% endif %}"
+        <a class="join-item btn 
+           {% if p == pagination.page %}
+              bg-cyan-500 text-black
+           {% else %}
+              bg-gray-800 hover:bg-gray-700
+           {% endif %}"
            href="{{ url_for('main.home',
                             page=p,
                             search=search,
@@ -129,7 +145,7 @@
         {% endfor %}
 
         {% if pagination.has_next %}
-        <a class="join-item btn"
+        <a class="join-item btn bg-gray-800 border-gray-700 hover:bg-gray-700"
            href="{{ url_for('main.home',
                             page=pagination.next_num,
                             search=search,

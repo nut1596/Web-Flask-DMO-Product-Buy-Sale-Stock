@@ -1,52 +1,54 @@
 <!DOCTYPE html>
-<html lang="th" data-theme="drak">
+<html lang="th" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <title>DMO Stock System</title>
 
     <!-- Tailwind + DaisyUI -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@latest/dist/full.css" rel="stylesheet" />
 </head>
 
-<body class="bg-base-200">
+<body class="bg-black text-white min-h-screen">
 
-<!-- 🌟 NAVBAR -->
-<div class="navbar bg-base-100 shadow-lg px-6">
+<!-- 🌌 NAVBAR (Modern Dark Style) -->
+<div class="navbar bg-black/70 backdrop-blur-md fixed top-0 z-50 px-10 border-b border-gray-800">
+
     <div class="flex-1">
-        <a href="{{ url_for('main.home') }}" class="text-xl font-bold">
+        <a href="{{ url_for('main.home') }}"
+           class="text-2xl font-bold tracking-wide hover:text-cyan-400 transition">
             DMO Stock
         </a>
     </div>
 
-    <div class="flex-none gap-2">
+    <div class="flex-none gap-3">
 
         {% if session.get("admin_logged_in") %}
 
         <a href="{{ url_for('admin.admin_dashboard') }}"
-           class="btn btn-sm btn-accent">
-           Admin
+           class="btn btn-sm bg-purple-600 hover:bg-purple-500 text-white border-none">
+           Dashboard
         </a>
 
         <a href="{{ url_for('auth.logout') }}"
-           class="btn btn-sm btn-error">
+           class="btn btn-sm bg-red-600 hover:bg-red-500 text-white border-none">
            Logout
         </a>
 
         {% else %}
 
         <a href="{{ url_for('auth.login') }}"
-           class="btn btn-sm btn-outline">
+           class="btn btn-sm bg-cyan-500 hover:bg-cyan-400 text-black border-none">
            Admin Login
         </a>
 
         {% endif %}
 
         <a href="{{ url_for('main.cart') }}"
-           class="btn btn-sm btn-primary">
+           class="btn btn-sm bg-yellow-500 hover:bg-yellow-400 text-black border-none">
            🛒 Cart
-           <span class="badge badge-secondary ml-2">
-               {{ session.get('cart', {})|length }}
+           <span class="ml-2 font-bold">
+               ({{ session.get('cart', {})|length }})
            </span>
         </a>
 
@@ -54,7 +56,7 @@
 </div>
 
 <!-- 🌟 CONTENT -->
-<div class="max-w-7xl mx-auto p-6">
+<div class="pt-28 px-10 max-w-7xl mx-auto">
     {% block content %}{% endblock %}
 </div>
 
