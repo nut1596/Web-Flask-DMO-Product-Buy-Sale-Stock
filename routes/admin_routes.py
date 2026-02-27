@@ -24,7 +24,16 @@ def admin_dashboard():
     if not session.get("admin_logged_in"):
         return redirect(url_for("auth.login"))
 
-    orders = Order.query.order_by(Order.created_at.desc()).all()
+    # รับค่า filter จาก URL เช่น ?status=Paid
+    status_filter = request.args.get("status")
+
+    query = Order.query
+
+    # ถ้ามีการเลือกสถานะ ให้กรองข้อมูล
+    if status_filter:
+        query = query.filter_by(status=status_filter)
+
+    orders = query.order_by(Order.created_at.desc()).all()
 
     total_sales = sum(order.total_amount for order in orders)
     total_orders = len(orders)
@@ -47,6 +56,7 @@ def admin_dashboard():
         total_orders=total_orders,
         labels=labels,
         data=data,
+        status_filter=status_filter,
     )
 
 
@@ -259,14 +269,15 @@ def update_status(id, status):
 
     order = Order.query.get_or_404(id)
 
-    if status in ["Pending", "Paid", "Cancelled"]:
-        order.status = status
-        db.session.commit()
+    allowed_transitions = {
+        "Pending": ["Paid", "Cancelled"],
+        "Paid": ["Completed"],
+        "Completed": [],
+        "Cancelled": [],
+    }
 
-        log = ActivityLog(
-            username=session.get("role"), action=f"Changed order #{id} to {status}"
-        )
-        db.session.add(log)
+    if status in allowed_transitions.get(order.status, []):
+        order.status = status
         db.session.commit()
 
     return redirect(url_for("admin.admin_dashboard"))

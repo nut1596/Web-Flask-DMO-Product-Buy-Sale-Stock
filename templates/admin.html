@@ -42,6 +42,39 @@
 <h4 class="mt-4">กราฟยอดขาย</h4>
 <canvas id="salesChart" height="100"></canvas>
 
+<form method="GET" class="mb-3">
+    <select name="status" class="form-control w-25 d-inline">
+
+        <option value="" 
+            {% if not status_filter %}selected{% endif %}>
+            ทุกสถานะ
+        </option>
+
+        <option value="Pending"
+            {% if status_filter == "Pending" %}selected{% endif %}>
+            Pending
+        </option>
+
+        <option value="Paid"
+            {% if status_filter == "Paid" %}selected{% endif %}>
+            Paid
+        </option>
+
+        <option value="Completed"
+            {% if status_filter == "Completed" %}selected{% endif %}>
+            Completed
+        </option>
+
+        <option value="Cancelled"
+            {% if status_filter == "Cancelled" %}selected{% endif %}>
+            Cancelled
+        </option>
+
+    </select>
+
+    <button class="btn btn-primary">กรอง</button>
+</form>
+
 <h4>รายการคำสั่งซื้อ</h4>
 
 {% if orders %}
