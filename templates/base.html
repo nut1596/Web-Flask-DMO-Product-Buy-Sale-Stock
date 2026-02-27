@@ -70,11 +70,12 @@
         {% endif %}
 
         <a href="{{ url_for('main.cart') }}"
-           class="btn btn-sm bg-yellow-500 hover:bg-yellow-400 text-black border-none">
-           🛒 Cart
-           <span class="ml-2 font-bold">
-               ({{ session.get('cart', {})|length }})
-           </span>
+            class="btn btn-sm btn-primary"
+            id="cart-button">
+            🛒
+            <span id="cart-count" class="badge badge-secondary ml-2">
+                {{ session.get('cart', {}).values()|sum }}
+            </span>
         </a>
 
         <a href="{{ url_for('auth.customer_login') }}"

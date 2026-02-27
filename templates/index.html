@@ -101,10 +101,10 @@
             <!-- BUTTON -->
             <div class="card-actions justify-end mt-4">
                 {% if product.stock > 0 %}
-                    <a href="{{ url_for('main.add_to_cart', product_id=product.id) }}"
-                       class="btn bg-purple-600 hover:bg-purple-500 border-none btn-sm">
+                    <button onclick="addToCart({{ product.id }})"
+                        class="btn btn-success btn-sm">
                         เพิ่มลงตะกร้า
-                    </a>
+                    </button>
                 {% else %}
                     <button class="btn btn-disabled btn-sm">
                         หมดแล้ว
@@ -165,5 +165,49 @@
     </div>
 </div>
 {% endif %}
+
+<script>
+function addToCart(productId) {
+
+    fetch(`/add_to_cart/${productId}`, {
+        method: "POST"
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+
+            // อัปเดตตัวเลข
+            document.getElementById("cart-count").innerText = data.cart_count;
+
+            // 🎯 ทำให้ปุ่ม Cart เด้ง
+            const cartBtn = document.getElementById("cart-button");
+            cartBtn.classList.add("animate-bounce");
+
+            setTimeout(() => {
+                cartBtn.classList.remove("animate-bounce");
+            }, 600);
+
+            showToast("เพิ่มสินค้าแล้ว 🛒");
+        }
+    });
+}
+
+function showToast(message) {
+
+    const toast = document.createElement("div");
+    toast.className =
+        "fixed bottom-5 right-5 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-50";
+
+    toast.innerText = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 2000);
+}
+</script>
+
+    JS addToCart()
 
 {% endblock %}

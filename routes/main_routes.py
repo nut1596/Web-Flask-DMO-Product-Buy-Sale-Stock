@@ -55,28 +55,32 @@ def category_detail(id):
 # ---------------- CART ----------------
 
 
-@main.route("/add_to_cart/<int:product_id>")
+from flask import jsonify
+
+
+@main.route("/add_to_cart/<int:product_id>", methods=["POST"])
 def add_to_cart(product_id):
+
     product = Product.query.get_or_404(product_id)
 
     if product.stock <= 0:
-        return redirect(url_for("main.category_detail", id=product.category_id))
+        return jsonify({"success": False})
 
     if "cart" not in session:
         session["cart"] = {}
 
     cart = session["cart"]
-    product_id_str = str(product_id)
+    pid = str(product_id)
 
-    current_quantity = cart.get(product_id_str, 0)
+    current_quantity = cart.get(pid, 0)
 
     if current_quantity < product.stock:
-        cart[product_id_str] = current_quantity + 1
+        cart[pid] = current_quantity + 1
 
     session["cart"] = cart
     session.modified = True
 
-    return redirect(url_for("main.cart"))
+    return jsonify({"success": True, "cart_count": sum(cart.values())})
 
 
 @main.route("/cart", methods=["GET", "POST"])
