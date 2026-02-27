@@ -1,54 +1,53 @@
 import os
-from werkzeug.utils import secure_filename
 from flask import Flask
-from models import db, Category, Product, Discount
-from models import AdminUser
+from flask_jwt_extended import JWTManager
+
+from extensions import db, cache
+from models import Category, Product, Discount, AdminUser
 from routes.main_routes import main
 from routes.admin_routes import admin
 from routes.auth_routes import auth
-from flask_caching import Cache
-from app import cache
 from routes.api_routes import api
-from flask_jwt_extended import JWTManager
 
 
 app = Flask(__name__)
 
-app.config["CACHE_TYPE"] = "SimpleCache"
-app.config["CACHE_DEFAULT_TIMEOUT"] = 60  # cache 60 วินาที
-
-cache = Cache(app)
-
+# ---------------- CONFIG ----------------
 app.config["SECRET_KEY"] = "supersecretkey"
 app.config["JWT_SECRET_KEY"] = "super-jwt-secret-key"
-jwt = JWTManager(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+app.config["CACHE_TYPE"] = "SimpleCache"
+app.config["CACHE_DEFAULT_TIMEOUT"] = 60
 
 app.config["UPLOAD_FOLDER"] = "static/images"
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-
+# ---------------- INIT EXTENSIONS ----------------
 db.init_app(app)
+cache.init_app(app)
+jwt = JWTManager(app)
 
+# ---------------- REGISTER BLUEPRINTS ----------------
 app.register_blueprint(main)
 app.register_blueprint(admin)
 app.register_blueprint(auth)
 app.register_blueprint(api)
 
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
 
-        # 1️⃣ Seed Category ก่อน
+        # Seed Category
         if Category.query.count() == 0:
             default_categories = ["AT", "HT", "CT", "HP", "DS", "DE", "EV", "BL"]
             for name in default_categories:
                 db.session.add(Category(name=name))
             db.session.commit()
 
-        # 2️⃣ Seed Product หลังจากมี Category แล้ว
+        # Seed Product
         if Product.query.count() == 0:
             at_category = Category.query.filter_by(name="AT").first()
             ht_category = Category.query.filter_by(name="HT").first()
@@ -86,7 +85,7 @@ if __name__ == "__main__":
 
             db.session.commit()
 
-        # 3️⃣ Seed Discount
+        # Seed Discount
         if Discount.query.count() == 0:
             discounts = [
                 ("NEWYEAR10", 10),
@@ -97,12 +96,11 @@ if __name__ == "__main__":
                 db.session.add(Discount(code=code, percent=percent))
             db.session.commit()
 
-        # 4️⃣ Seed Admin User
-        # ตรวจสอบว่ามีผู้ใช้ admin อยู่แล้วหรือไม่
+        # Seed Admin User
         if AdminUser.query.count() == 0:
-            admin = AdminUser(username="admin")
-            admin.set_password("1234")
-            db.session.add(admin)
+            admin_user = AdminUser(username="admin")
+            admin_user.set_password("1234")
+            db.session.add(admin_user)
             db.session.commit()
 
     app.run(debug=True)

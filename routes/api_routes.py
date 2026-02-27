@@ -5,6 +5,28 @@ from sqlalchemy import func
 from flask import request
 from flask_jwt_extended import create_access_token, jwt_required
 from models import AdminUser
+from flask_jwt_extended import get_jwt
+from functools import wraps
+
+
+def role_required(required_role):
+
+    def wrapper(fn):
+        @wraps(fn)
+        @jwt_required()
+        def decorator(*args, **kwargs):
+
+            claims = get_jwt()
+            user_role = claims.get("role")
+
+            if user_role != required_role:
+                return jsonify({"message": "Access forbidden"}), 403
+
+            return fn(*args, **kwargs)
+
+        return decorator
+
+    return wrapper
 
 
 api = Blueprint("api", __name__, url_prefix="/api")
@@ -22,7 +44,9 @@ def api_login():
 
     if user and user.check_password(password):
 
-        access_token = create_access_token(identity=user.username)
+        access_token = create_access_token(
+            identity=user.username, additional_claims={"role": user.role}
+        )
 
         return jsonify({"access_token": access_token})
 
@@ -51,7 +75,7 @@ def get_products():
 
 # ---------------- ORDERS ----------------
 @api.route("/orders")
-@jwt_required()
+@role_required("admin")
 def get_orders():
     orders = Order.query.all()
 
