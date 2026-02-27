@@ -7,6 +7,7 @@ from flask_jwt_extended import create_access_token, jwt_required
 from models import AdminUser
 from flask_jwt_extended import get_jwt
 from functools import wraps
+from extensions import limiter
 
 
 def role_required(required_role):
@@ -33,6 +34,7 @@ api = Blueprint("api", __name__, url_prefix="/api")
 
 
 @api.route("/login", methods=["POST"])
+@limiter.limit("5 per minute")
 def api_login():
 
     data = request.get_json()
@@ -55,6 +57,8 @@ def api_login():
 
 # ---------------- PRODUCTS ----------------
 @api.route("/products")
+@jwt_required()
+@limiter.limit("30 per minute")
 def get_products():
     products = Product.query.all()
 
@@ -76,6 +80,7 @@ def get_products():
 # ---------------- ORDERS ----------------
 @api.route("/orders")
 @role_required("admin")
+@limiter.limit("20 per minute")
 def get_orders():
     orders = Order.query.all()
 

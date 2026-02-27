@@ -8,6 +8,7 @@ from routes.main_routes import main
 from routes.admin_routes import admin
 from routes.auth_routes import auth
 from routes.api_routes import api
+from extensions import db, cache, limiter
 
 
 app = Flask(__name__)
@@ -27,6 +28,7 @@ os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 # ---------------- INIT EXTENSIONS ----------------
 db.init_app(app)
 cache.init_app(app)
+limiter.init_app(app)
 jwt = JWTManager(app)
 
 # ---------------- REGISTER BLUEPRINTS ----------------
