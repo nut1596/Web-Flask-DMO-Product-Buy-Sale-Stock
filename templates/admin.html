@@ -1,251 +1,133 @@
 {% extends "base.html" %}
-
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Admin Dashboard</h2>
-    {% if session.get("role") == "admin" %}
-    <a href="{{ url_for('admin.admin_products') }}" class="btn btn-dark">
-        จัดการสินค้า
-    </a>
-    <a href="{{ url_for('admin.view_logs') }}" class="btn btn-secondary">
-        ดู Activity Logs
-    </a>
-    {% endif %}
-</div>
+<div class="max-w-7xl mx-auto space-y-14">
 
-<div class="row mb-4 text-center">
-    <div class="col-md-6">
-        <div class="card bg-dark text-white p-3">
-            <h5>ยอดขายรวม</h5>
-            <h3>{{ total_sales }} บาท</h3>
+    <!-- HEADER -->
+    <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
+        <div>
+            <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+            <p class="text-gray-400 text-sm mt-1">ภาพรวมระบบและยอดขาย</p>
         </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card bg-primary text-white p-3">
-            <h5>จำนวนคำสั่งซื้อ</h5>
-            <h3>{{ total_orders }}</h3>
-        </div>
-    </div>
-</div> 
 
-
-<div class="row text-center mb-4">
-
-    <div class="col-md-4">
-        <div class="card bg-success text-white p-3">
-            <h6>Paid Revenue</h6>
-            <h4>{{ paid_revenue | round(2) }} บาท</h4>
+        <div class="flex gap-3">
+            <a href="{{ url_for('admin.export_pdf') }}"
+               class="btn bg-red-600 hover:bg-red-500 border-none">
+                PDF
+            </a>
+            <a href="{{ url_for('admin.export_excel') }}"
+               class="btn bg-green-600 hover:bg-green-500 border-none">
+                Excel
+            </a>
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="card bg-info text-white p-3">
-            <h6>Average Order Value</h6>
-            <h4>{{ average_order_value | round(2) }} บาท</h4>
+
+    <!-- KPI GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+
+        {% set kpis = [
+            ("ยอดขายรวม", total_sales ~ " บาท", "from-purple-600 to-indigo-600"),
+            ("Paid Revenue", paid_revenue ~ " บาท", "from-green-500 to-emerald-600"),
+            ("Average Order", avg_order ~ " บาท", "from-cyan-500 to-blue-600"),
+            ("Conversion Rate", conversion_rate ~ " %", "from-yellow-500 to-orange-500")
+        ] %}
+
+        {% for title, value, gradient in kpis %}
+        <div class="p-6 rounded-2xl shadow-xl bg-gradient-to-r {{ gradient }}
+                    transition duration-300 hover:scale-105 hover:shadow-2xl">
+            <p class="text-sm text-gray-200">{{ title }}</p>
+            <h2 class="text-2xl font-bold mt-2">{{ value }}</h2>
         </div>
-    </div>
-
-    <div class="col-md-4">
-        <div class="card bg-warning text-dark p-3">
-            <h6>Conversion Rate</h6>
-            <h4>{{ conversion_rate | round(2) }} %</h4>
-        </div>
-    </div>
-
-</div>
-
-
-<a href="{{ url_for('admin.export_pdf') }}" class="btn btn-danger mb-3">
-    ดาวน์โหลดรายงาน PDF
-</a>
-
-<a href="{{ url_for('admin.export_excel') }}" class="btn btn-success mb-3 ms-2">
-    ดาวน์โหลด Excel
-</a>
-
-<hr>
-
-<h4 class="mt-4">กราฟยอดขาย</h4>
-<canvas id="salesChart" height="100"></canvas>
-
-<h4 class="mt-5">Monthly Revenue (Paid Orders)</h4>
-<canvas id="monthlyChart" height="100"></canvas>
-
-<form method="GET" class="mb-3">
-    <select name="status" class="form-control w-25 d-inline">
-
-        <option value="" 
-            {% if not status_filter %}selected{% endif %}>
-            ทุกสถานะ
-        </option>
-
-        <option value="Pending"
-            {% if status_filter == "Pending" %}selected{% endif %}>
-            Pending
-        </option>
-
-        <option value="Paid"
-            {% if status_filter == "Paid" %}selected{% endif %}>
-            Paid
-        </option>
-
-        <option value="Completed"
-            {% if status_filter == "Completed" %}selected{% endif %}>
-            Completed
-        </option>
-
-        <option value="Cancelled"
-            {% if status_filter == "Cancelled" %}selected{% endif %}>
-            Cancelled
-        </option>
-
-    </select>
-
-    <button class="btn btn-primary">กรอง</button>
-</form>
-
-<form method="GET" class="row mb-4">
-
-    <div class="col-md-3">
-        <input type="date" name="start_date"
-               value="{{ start_date or '' }}"
-               class="form-control">
-    </div>
-
-    <div class="col-md-3">
-        <input type="date" name="end_date"
-               value="{{ end_date or '' }}"
-               class="form-control">
-    </div>
-
-    <div class="col-md-3">
-        <button class="btn btn-success w-100">
-            กรองช่วงเวลา
-        </button>
-    </div>
-
-</form>
-
-<h4>รายการคำสั่งซื้อ</h4>
-
-{% if orders %}
-<table class="table table-bordered text-center">
-    <thead class="table-dark">
-        <tr>
-            <th>Order ID</th>
-            <th>ยอดรวม</th>
-            <th>วันที่</th>
-            <th>รายละเอียด</th>
-            <th>สถานะ</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for order in orders %}
-        <tr>
-            <td>
-                <span class="badge bg-secondary">
-                    #{{ order.id }}
-                </span>
-            </td>
-            <td>{{ order.total_amount }} บาท</td>
-            <td>{{ order.created_at.strftime("%d/%m/%Y %H:%M") }}</td>
-            <td>
-                <a href="{{ url_for('admin.order_detail', id=order.id) }}"
-                class="btn btn-info btn-sm">
-                ดู
-                </a>
-                <a href="{{ url_for('admin.update_status', id=order.id, status='Paid') }}"
-                class="btn btn-success btn-sm">
-                Paid
-                </a>
-
-                <a href="{{ url_for('admin.update_status', id=order.id, status='Cancelled') }}"
-                class="btn btn-danger btn-sm">
-                Cancel
-                </a>
-            </td>
-            <td>
-                {% if order.status == "Pending" %}
-                    <span class="badge bg-warning text-dark">Pending</span>
-                {% elif order.status == "Paid" %}
-                    <span class="badge bg-success">Paid</span>
-                {% elif order.status == "Cancelled" %}
-                    <span class="badge bg-danger">Cancelled</span>
-                {% endif %}
-            </td>
-        </tr>
         {% endfor %}
 
-    </tbody>
-</table>
-{% else %}
-<p class="text-muted text-center">ยังไม่มีคำสั่งซื้อ</p>
-
-{% endif %}
+    </div>
 
 
-<!-- eslint-disable -->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
+    <!-- CHART SECTION -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
-    const ctx = document.getElementById('salesChart');
+        <div class="bg-black/60 p-8 rounded-2xl border border-gray-800 shadow-xl">
+            <h3 class="text-lg font-semibold mb-6">Monthly Revenue</h3>
+            <canvas id="monthlyChart"></canvas>
+        </div>
 
-    if (ctx && {{ labels|length }} > 0) {
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ labels|tojson }},
-                datasets: [{
-                    label: 'ยอดขายรายวัน (บาท)',
-                    data: {{ data|tojson }},
-                    borderWidth: 2,
-                    tension: 0.3,
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
+        <div class="bg-black/60 p-8 rounded-2xl border border-gray-800 shadow-xl">
+            <h3 class="text-lg font-semibold mb-6">Order Status Distribution</h3>
+            <canvas id="statusChart"></canvas>
+        </div>
 
-});
-</script>
+    </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
 
-    const ctx2 = document.getElementById('monthlyChart');
+    <!-- ORDER SECTION -->
+    <div class="bg-black/60 p-8 rounded-2xl border border-gray-800 shadow-xl space-y-8">
 
-    if (ctx2 && {{ monthly_labels|length }} > 0) {
-        new Chart(ctx2, {
-            type: 'bar',
-            data: {
-                labels: {{ monthly_labels|tojson }},
-                datasets: [{
-                    label: 'Monthly Revenue (บาท)',
-                    data: {{ monthly_revenue|tojson }},
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-    }
+        <!-- TITLE + FILTER -->
+        <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-6">
 
-});
-</script>
+            <h3 class="text-xl font-semibold">รายการคำสั่งซื้อ</h3>
+
+            <div class="flex flex-wrap gap-4">
+
+                <select class="select bg-black border-gray-700">
+                    <option>ทุกสถานะ</option>
+                    <option>Pending</option>
+                    <option>Paid</option>
+                    <option>Cancelled</option>
+                </select>
+
+                <input type="date" class="input bg-black border-gray-700">
+                <input type="date" class="input bg-black border-gray-700">
+
+                <button class="btn bg-cyan-500 hover:bg-cyan-400 border-none text-black">
+                    กรอง
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- TABLE -->
+        <div class="overflow-x-auto rounded-xl border border-gray-800">
+            <table class="table text-white">
+
+                <thead class="bg-gray-900 text-gray-400 uppercase text-sm">
+                    <tr>
+                        <th>#</th>
+                        <th>ยอดรวม</th>
+                        <th>วันที่</th>
+                        <th>สถานะ</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for order in orders %}
+                    <tr class="hover:bg-gray-900 transition">
+                        <td>#{{ order.id }}</td>
+                        <td class="font-semibold">{{ order.total_amount }}</td>
+                        <td>{{ order.created_at.strftime("%d/%m/%Y") }}</td>
+                        <td>
+                            {% if order.status == "Paid" %}
+                                <span class="badge bg-green-600 border-none">Paid</span>
+                            {% elif order.status == "Pending" %}
+                                <span class="badge bg-yellow-500 text-black border-none">Pending</span>
+                            {% else %}
+                                <span class="badge bg-red-600 border-none">Cancelled</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+</div>
 
 {% endblock %}
