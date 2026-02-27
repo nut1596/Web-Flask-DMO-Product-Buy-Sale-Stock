@@ -9,6 +9,7 @@ from routes.auth_routes import auth
 from flask_caching import Cache
 from app import cache
 from routes.api_routes import api
+from flask_jwt_extended import JWTManager
 
 
 app = Flask(__name__)
@@ -19,6 +20,8 @@ app.config["CACHE_DEFAULT_TIMEOUT"] = 60  # cache 60 วินาที
 cache = Cache(app)
 
 app.config["SECRET_KEY"] = "supersecretkey"
+app.config["JWT_SECRET_KEY"] = "super-jwt-secret-key"
+jwt = JWTManager(app)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 

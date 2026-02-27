@@ -2,8 +2,31 @@ from flask import Blueprint, jsonify
 from models import Product, Order
 from models import db
 from sqlalchemy import func
+from flask import request
+from flask_jwt_extended import create_access_token, jwt_required
+from models import AdminUser
+
 
 api = Blueprint("api", __name__, url_prefix="/api")
+
+
+@api.route("/login", methods=["POST"])
+def api_login():
+
+    data = request.get_json()
+
+    username = data.get("username")
+    password = data.get("password")
+
+    user = AdminUser.query.filter_by(username=username).first()
+
+    if user and user.check_password(password):
+
+        access_token = create_access_token(identity=user.username)
+
+        return jsonify({"access_token": access_token})
+
+    return jsonify({"message": "Invalid credentials"}), 401
 
 
 # ---------------- PRODUCTS ----------------
@@ -28,6 +51,7 @@ def get_products():
 
 # ---------------- ORDERS ----------------
 @api.route("/orders")
+@jwt_required()
 def get_orders():
     orders = Order.query.all()
 
