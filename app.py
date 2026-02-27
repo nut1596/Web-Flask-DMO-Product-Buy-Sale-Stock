@@ -8,6 +8,7 @@ from routes.admin_routes import admin
 from routes.auth_routes import auth
 from flask_caching import Cache
 from app import cache
+from routes.api_routes import api
 
 
 app = Flask(__name__)
@@ -31,7 +32,7 @@ db.init_app(app)
 app.register_blueprint(main)
 app.register_blueprint(admin)
 app.register_blueprint(auth)
-
+app.register_blueprint(api)
 
 if __name__ == "__main__":
     with app.app_context():
