@@ -101,7 +101,7 @@
             <!-- BUTTON -->
             <div class="card-actions justify-end mt-4">
                 {% if product.stock > 0 %}
-                    <button onclick="addToCart({{ product.id }})"
+                    <button onclick="openQuantityModal({{ product.id }}, {{ product.stock }})"
                         class="btn btn-success btn-sm">
                         เพิ่มลงตะกร้า
                     </button>
@@ -208,6 +208,77 @@ function showToast(message) {
 }
 </script>
 
-    
+
+<script>
+
+let selectedProductId = null;
+let selectedStock = 1;
+
+function openQuantityModal(productId, stock) {
+    selectedProductId = productId;
+    selectedStock = stock;
+
+    const qtyInput = document.getElementById("modalQuantity");
+    qtyInput.max = stock;
+    qtyInput.value = 1;
+
+    document.getElementById("qtyModal").showModal();
+}
+
+function closeModal() {
+    document.getElementById("qtyModal").close();
+}
+
+function confirmAddToCart() {
+
+    const qty = parseInt(document.getElementById("modalQuantity").value);
+
+    if (qty < 1 || qty > selectedStock) {
+        alert("จำนวนไม่ถูกต้อง");
+        return;
+    }
+
+    fetch(`/add_to_cart/${selectedProductId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ quantity: qty })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+
+            document.getElementById("cart-count").innerText = data.cart_count;
+
+            showToast("เพิ่มสินค้าแล้ว 🛒");
+
+            closeModal();
+        }
+    });
+}
+
+</script>
+
+<!-- Quantity Modal -->
+<dialog id="qtyModal" class="modal">
+  <div class="modal-box bg-black border border-gray-700">
+    <h3 class="font-bold text-lg mb-4">เลือกจำนวน</h3>
+
+    <input type="number"
+           id="modalQuantity"
+           min="1"
+           value="1"
+           class="input input-bordered w-full bg-black border-gray-600 text-center">
+
+    <div class="modal-action">
+      <button class="btn btn-ghost"
+              onclick="closeModal()">ยกเลิก</button>
+
+      <button class="btn btn-success"
+              onclick="confirmAddToCart()">เพิ่ม</button>
+    </div>
+  </div>
+</dialog>
 
 {% endblock %}

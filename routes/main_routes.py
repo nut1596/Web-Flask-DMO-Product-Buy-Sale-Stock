@@ -61,26 +61,31 @@ from flask import jsonify
 @main.route("/add_to_cart/<int:product_id>", methods=["POST"])
 def add_to_cart(product_id):
 
+    from flask import request, jsonify
+
     product = Product.query.get_or_404(product_id)
 
-    if product.stock <= 0:
-        return jsonify({"success": False})
+    data = request.get_json()
+    quantity = int(data.get("quantity", 1)) if data else 1
+
+    if quantity > product.stock:
+        quantity = product.stock
 
     if "cart" not in session:
         session["cart"] = {}
 
     cart = session["cart"]
-    pid = str(product_id)
 
-    current_quantity = cart.get(pid, 0)
+    if str(product_id) in cart:
+        cart[str(product_id)] += quantity
+    else:
+        cart[str(product_id)] = quantity
 
-    if current_quantity < product.stock:
-        cart[pid] = current_quantity + 1
-
-    session["cart"] = cart
     session.modified = True
 
-    return jsonify({"success": True, "cart_count": sum(cart.values())})
+    cart_count = sum(cart.values())
+
+    return jsonify({"success": True, "cart_count": cart_count})
 
 
 @main.route("/cart", methods=["GET", "POST"])
