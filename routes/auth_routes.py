@@ -20,8 +20,13 @@ def login():
         user = AdminUser.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
+
+            # 🔥 ถ้า customer login อยู่ ให้ลบทิ้งก่อน
+            session.pop("customer_id", None)
+
             session["admin_logged_in"] = True
             session["role"] = user.role
+
             return redirect(url_for("admin.admin_dashboard"))
 
         return render_template("login.html", error="Username หรือ Password ไม่ถูกต้อง")
@@ -74,7 +79,13 @@ def customer_login():
         user = Customer.query.filter_by(username=username).first()
 
         if user and user.check_password(password):
+
+            # 🔥 ถ้า admin login อยู่ ให้ลบทิ้งก่อน
+            session.pop("admin_logged_in", None)
+            session.pop("role", None)
+
             session["customer_id"] = user.id
+
             return redirect(url_for("main.home"))
 
         return render_template(
