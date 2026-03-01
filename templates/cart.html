@@ -29,13 +29,27 @@
 
                         <td>
                             <div class="flex items-center gap-2">
+
+                                <!-- ปุ่มลด -->
                                 <a href="{{ url_for('main.decrease_quantity', product_id=product.id) }}"
-                                   class="btn btn-xs btn-outline">-</a>
+                                class="btn btn-xs btn-outline">
+                                    -
+                                </a>
 
-                                <span>{{ quantity }}</span>
+                                <!-- ช่องกรอก -->
+                                <input type="number"
+                                    min="1"
+                                    max="{{ product.stock }}"
+                                    value="{{ quantity }}"
+                                    onchange="updateQuantity({{ product.id }}, this.value)"
+                                    class="w-16 text-center input input-xs input-bordered bg-black border-gray-700">
 
+                                <!-- ปุ่มเพิ่ม -->
                                 <a href="{{ url_for('main.increase_quantity', product_id=product.id) }}"
-                                   class="btn btn-xs btn-outline">+</a>
+                                class="btn btn-xs btn-outline">
+                                    +
+                                </a>
+
                             </div>
                         </td>
 
@@ -163,5 +177,30 @@
     </div>
 
 </div>
+
+<script>
+function updateQuantity(productId, newQty) {
+
+    if (newQty < 1) {
+        alert("จำนวนต้องมากกว่า 0");
+        location.reload();
+        return;
+    }
+
+    fetch(`/update_quantity/${productId}`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ quantity: newQty })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        }
+    });
+}
+</script>
 
 {% endblock %}

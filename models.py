@@ -16,6 +16,7 @@ class Product(db.Model):
     image = db.Column(db.String(200), nullable=False)
     stock = db.Column(db.Integer, nullable=False, default=0)
     category_id = db.Column(db.Integer, db.ForeignKey("category.id"), nullable=False)
+    image_position = db.Column(db.String(20), default="center")
 
 
 class Discount(db.Model):

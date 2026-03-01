@@ -258,3 +258,20 @@ def remove_discount():
     session.pop("discount_percent", None)
     session.pop("discount_code", None)
     return redirect(url_for("main.cart"))
+
+
+@main.route("/update_quantity/<int:product_id>", methods=["POST"])
+def update_quantity(product_id):
+
+    from flask import request, jsonify
+
+    data = request.get_json()
+    quantity = int(data.get("quantity", 1))
+
+    if "cart" not in session:
+        return jsonify({"success": False})
+
+    session["cart"][str(product_id)] = quantity
+    session.modified = True
+
+    return jsonify({"success": True})

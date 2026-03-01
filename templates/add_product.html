@@ -30,7 +30,7 @@
                 </label>
                 <input type="number"
                     name="price"
-                    step="0.01"
+                    step="any"
                     min="0"
                     required
                     class="input input-bordered w-full bg-black/50 border-gray-700">
@@ -66,6 +66,19 @@
                         {{ category.name }}
                     </option>
                     {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="label">
+                    <span class="label-text text-gray-300">ตำแหน่งภาพ</span>
+                </label>
+
+                <select name="image_position"
+                        class="select select-bordered w-full bg-black/50 border-gray-700">
+                    <option value="top">โฟกัสด้านบน</option>
+                    <option value="center" selected>กึ่งกลาง</option>
+                    <option value="bottom">โฟกัสด้านล่าง</option>
                 </select>
             </div>
 

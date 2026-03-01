@@ -68,9 +68,9 @@
     {% for product in products %}
     <div class="card glow-card bg-black/60 border border-gray-800 rounded-2xl">
 
-        <figure>
+       <figure class="h-56 bg-black overflow-hidden rounded-t-2xl">
             <img src="{{ url_for('static', filename='images/' + product.image) }}"
-                 class="h-52 w-full object-cover rounded-t-2xl">
+                class="w-full h-full object-cover object-{{ product.image_position }}">
         </figure>
 
         <div class="card-body">

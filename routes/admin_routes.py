@@ -258,6 +258,7 @@ def add_product():
         price = float(request.form["price"])
         stock = int(request.form["stock"])
         category_id = int(request.form["category_id"])
+        image_position = request.form.get("image_position", "center")
 
         file = request.files["image"]
 
@@ -274,6 +275,7 @@ def add_product():
             stock=stock,
             image=filename,
             category_id=category_id,
+            image_position=request.form.get("image_position", "center"),
         )
 
         db.session.add(new_product)
@@ -302,6 +304,7 @@ def edit_product(id):
         product.price = float(request.form["price"])
         product.stock = int(request.form["stock"])
         product.category_id = int(request.form["category_id"])
+        product.image_position = request.form.get("image_position", "center")
 
         file = request.files["image"]
 

@@ -34,7 +34,7 @@
                 <input type="number"
                        name="price"
                        value="{{ product.price }}"
-                       step="0.01"
+                       step="any"
                        min="0"
                        required
                        class="input input-bordered w-full bg-black/50 border-gray-700 focus:border-purple-500">
@@ -92,6 +92,26 @@
                         {{ c.name }}
                     </option>
                     {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label class="text-gray-400 text-sm">ตำแหน่งภาพ</label>
+                <select name="image_position"
+                        class="select select-bordered w-full mt-2
+                               bg-black/50 border-gray-700 focus:border-orange-500">
+                    <option value="top"
+                        {% if product.image_position == "top" %}selected{% endif %}>
+                        โฟกัสด้านบน
+                    </option>
+                    <option value="center"
+                        {% if product.image_position == "center" %}selected{% endif %}>
+                        กึ่งกลาง
+                    </option>
+                    <option value="bottom"
+                        {% if product.image_position == "bottom" %}selected{% endif %}>
+                        โฟกัสด้านล่าง
+                    </option>
                 </select>
             </div>
 
