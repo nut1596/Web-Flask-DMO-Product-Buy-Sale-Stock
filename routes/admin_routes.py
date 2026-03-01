@@ -319,6 +319,33 @@ def edit_product(id):
     return render_template("edit_product.html", product=product, categories=categories)
 
 
+@admin.route("/admin/products/stock/<int:id>", methods=["GET", "POST"])
+def update_stock(id):
+
+    if not session.get("admin_logged_in"):
+        return redirect(url_for("auth.login"))
+
+    product = Product.query.get_or_404(id)
+
+    if request.method == "POST":
+        add_stock = int(request.form["add_stock"])
+
+        if add_stock > 0:
+            product.stock += add_stock
+            db.session.commit()
+
+            log = ActivityLog(
+                username=session.get("role"),
+                action=f"Added {add_stock} stock to product ID {id}",
+            )
+            db.session.add(log)
+            db.session.commit()
+
+        return redirect(url_for("admin.admin_products"))
+
+    return render_template("update_stock.html", product=product)
+
+
 @admin.route("/admin/orders/<int:id>")
 def order_detail(id):
 

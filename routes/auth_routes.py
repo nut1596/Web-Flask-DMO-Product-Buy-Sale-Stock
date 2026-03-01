@@ -84,15 +84,15 @@ def customer_login():
     return render_template("customer_login.html")
 
 
-# =========================
-# LOGOUT (ทั้ง admin + customer)
-# =========================
-@auth.route("/logout")
-def logout():
-    session.clear()
+# ---------------- ADMIN LOGOUT ----------------
+@auth.route("/admin-logout")
+def admin_logout():
+    session.pop("admin_logged_in", None)
+    session.pop("role", None)
     return redirect(url_for("main.home"))
 
 
+# ---------------- CUSTOMER LOGOUT ----------------
 @auth.route("/customer-logout")
 def customer_logout():
     session.pop("customer_id", None)

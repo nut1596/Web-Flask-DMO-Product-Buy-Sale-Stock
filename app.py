@@ -97,9 +97,9 @@ if __name__ == "__main__":
 
         # Seed Admin User
         if AdminUser.query.count() == 0:
-            admin_user = AdminUser(username="admin")
-            admin_user.set_password("1234")
-            db.session.add(admin_user)
+            admin = AdminUser(username="admin", role="admin")
+            admin.set_password("1234")
+            db.session.add(admin)
             db.session.commit()
 
     app.run(debug=True)

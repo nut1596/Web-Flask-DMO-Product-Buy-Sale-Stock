@@ -55,10 +55,12 @@
            Dashboard
         </a>
 
-        <a href="{{ url_for('auth.logout') }}"
-           class="btn btn-sm bg-red-600 hover:bg-red-500 text-white border-none">
-           Logout
-        </a>
+        {% if session.get("admin_logged_in") %}
+            <a href="{{ url_for('auth.admin_logout') }}"
+            class="btn btn-sm btn-error">
+            Logout
+            </a>
+        {% endif %}
 
         {% else %}
 
@@ -79,9 +81,9 @@
         </a>
 
         {% if session.get("customer_id") %}
-            <a href="{{ url_for('auth.logout') }}"
-                class="btn btn-sm btn-error">
-                Logout
+            <a href="{{ url_for('auth.customer_logout') }}"
+            class="btn btn-sm btn-error">
+            Logout
             </a>
         {% endif %}
 
